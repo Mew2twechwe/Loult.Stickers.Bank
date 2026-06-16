@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Banque de stickers</title>
+
+<style>
+body{
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+    margin:0;
+    padding:20px;
+}
+
+#login{
+    text-align:center;
+    margin-top:150px;
+}
+
+#uploadZone{
+    display:none;
+}
+
+#dropZone{
+    border:3px dashed #666;
+    border-radius:15px;
+    padding:40px;
+    text-align:center;
+    margin-bottom:20px;
+    transition:0.2s;
+}
+
+#dropZone.dragover{
+    border-color:white;
+    background:#222;
+}
+
+button{
+    padding:10px 15px;
+    cursor:pointer;
+    margin:5px;
+}
+
+input{
+    padding:10px;
+}
+
+.gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+    gap:15px;
+}
+
+.card{
+    background:#1b1b1b;
+    border:1px solid #444;
+    border-radius:10px;
+    padding:10px;
+    text-align:center;
+}
+
+.card img{
+    max-width:120px;
+    max-height:120px;
+}
+
+.delete{
+    margin-top:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div id="login">
+    <h2>Accès privé</h2>
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="login()">Entrer</button>
+</div>
+
+<div id="uploadZone">
+
+    <div id="dropZone">
+        <h2>Glisse tes stickers ici</h2>
+        <p>ou</p>
+        <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+
+    <div class="gallery" id="gallery"></div>
+
+</div>
+
+<script>
+
+const PASSWORD = "1234";
+
+function login(){
+    const pwd = document.getElementById("password").value;
+
+    if(pwd === PASSWORD){
+        document.getElementById("login").style.display = "none";
+        document.getElementById("uploadZone").style.display = "block";
+        loadStickers();
+    }else{
+        alert("Mot de passe incorrect");
+    }
+}
+
+const STORAGE_KEY = "loult_stickers";
+
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("fileInput");
+
+fileInput.addEventListener("change", function(){
+    handleFiles(this.files);
+});
+
+dropZone.addEventListener("dragover", e=>{
+    e.preventDefault();
+    dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", ()=>{
+    dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", e=>{
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    handleFiles(e.dataTransfer.files);
+});
+
+function getStickers(){
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
+
+function saveStickers(stickers){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stickers));
+}
+
+function handleFiles(files){
+
+    let stickers = getStickers();
+
+    [...files].forEach(file=>{
+
+        if(!file.type.startsWith("image/")){
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            stickers.push({
+                name:file.name,
+                image:e.target.result
+            });
+
+            saveStickers(stickers);
+            renderGallery();
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+function deleteSticker(index){
+
+    let stickers = getStickers();
+
+    stickers.splice(index,1);
+
+    saveStickers(stickers);
+
+    renderGallery();
+}
+
+function renderGallery(){
+
+    const gallery = document.getElementById("gallery");
+
+    gallery.innerHTML = "";
+
+    const stickers = getStickers();
+
+    stickers.forEach((sticker,index)=>{
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <img src="${sticker.image}">
+            <div>${sticker.name}</div>
+            <button class="delete" onclick="deleteSticker(${index})">
+                Supprimer
+            </button>
+        `;
+
+        gallery.appendChild(card);
+    });
+}
+
+function loadStickers(){
+    renderGallery();
+}
+
+</script>
+
+</body>
+</html>
