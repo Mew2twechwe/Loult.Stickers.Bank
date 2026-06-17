@@ -2,116 +2,163 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Loult Stickers Bank</title>
+<title>Banque de stickers Loult</title>
 <style>
-body {
-  background: #111;
-  color: white;
-  font-family: Arial, sans-serif;
-  padding: 30px;
+body{
+  background:#111;
+  color:white;
+  font-family:Arial,sans-serif;
+  margin:0;
+  padding:20px;
 }
-
-h1 {
-  text-align: center;
+h1{text-align:center}
+#dropZone{
+  border:3px dashed #666;
+  border-radius:15px;
+  padding:35px;
+  text-align:center;
+  margin-bottom:20px;
 }
-
-#search {
-  display: block;
-  margin: 20px auto;
-  padding: 12px;
-  width: 80%;
-  max-width: 500px;
-  border-radius: 8px;
-  border: none;
+#dropZone.dragover{
+  background:#222;
+  border-color:white;
 }
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 15px;
+input,button{
+  padding:10px;
+  margin:5px;
+  border-radius:6px;
 }
-
-.card {
-  background: #1b1b1b;
-  border: 1px solid #444;
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
+button{
+  cursor:pointer;
+  background:#333;
+  color:white;
+  border:1px solid #777;
 }
-
-.card img {
-  max-width: 120px;
-  max-height: 120px;
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:15px;
 }
-
-.creator {
-  color: #ccc;
-  font-size: 14px;
-  margin-top: 8px;
+.card{
+  background:#1b1b1b;
+  border:1px solid #444;
+  border-radius:10px;
+  padding:10px;
+  text-align:center;
 }
-
-.tags {
-  color: #888;
-  font-size: 12px;
+.card img{
+  max-width:120px;
+  max-height:120px;
 }
 </style>
 </head>
 <body>
 
-<h1>Loult Stickers Bank</h1>
+<h1>Banque de stickers Loult</h1>
 
-<input id="search" placeholder="Rechercher un sticker, créateur ou tag...">
+<div id="dropZone">
+  <h2>Glisse un sticker ici</h2>
+  <p>ou choisis un fichier</p>
+  <input type="file" id="fileInput" accept="image/*">
+</div>
 
-<div class="grid" id="gallery"></div>
+<div class="gallery" id="gallery"></div>
 
 <script>
-let stickers = [];
+const STORAGE_KEY = "loult_stickers_v2";
 
-fetch("stickers.json")
-  .then(response => response.json())
-  .then(data => {
-    stickers = data;
-    render();
-  });
+const fileInput = document.getElementById("fileInput");
+const dropZone = document.getElementById("dropZone");
+const gallery = document.getElementById("gallery");
 
-document.getElementById("search").addEventListener("input", render);
+let stickers = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
-function render() {
-  const gallery = document.getElementById("gallery");
-  const search = document.getElementById("search").value.toLowerCase();
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stickers));
+}
 
+function render(){
   gallery.innerHTML = "";
 
-  stickers
-    .filter(sticker => {
-      const text = `
-        ${sticker.name}
-        ${sticker.creator}
-        ${sticker.tags.join(" ")}
-      `.toLowerCase();
+  stickers.forEach((sticker, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-      return text.includes(search);
-    })
-    .forEach(sticker => {
-      const card = document.createElement("div");
-      card.className = "card";
+    const img = document.createElement("img");
+    img.src = sticker.image;
 
-      card.innerHTML = `
-        <img src="${sticker.image}" alt="${sticker.name}">
-        <div>${sticker.name}</div>
-        <div class="creator">Créé par : ${sticker.creator}</div>
-        <div class="tags">${sticker.tags.map(tag => "#" + tag).join(" ")}</div>
-        <button onclick="copySticker('${sticker.image}')">Copier</button>
-      `;
+    const name = document.createElement("div");
+    name.textContent = sticker.name;
 
-      gallery.appendChild(card);
+    const copyBtn = document.createElement("button");
+    copyBtn.textContent = "Copier";
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(sticker.image);
+      alert("Sticker copié !");
+    };
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Supprimer";
+    deleteBtn.onclick = () => {
+      stickers.splice(index, 1);
+      save();
+      render();
+    };
+
+    card.appendChild(img);
+    card.appendChild(name);
+    card.appendChild(copyBtn);
+    card.appendChild(deleteBtn);
+
+    gallery.appendChild(card);
+  });
+}
+
+function addFile(file){
+  if(!file || !file.type.startsWith("image/")){
+    alert("Choisis une image.");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    stickers.push({
+      name: file.name,
+      image: e.target.result
     });
+
+    save();
+    render();
+
+    fileInput.value = "";
+  };
+
+  reader.readAsDataURL(file);
 }
 
-function copySticker(url) {
-  navigator.clipboard.writeText(url);
-  alert("Lien copié !");
-}
+fileInput.addEventListener("change", () => {
+  addFile(fileInput.files[0]);
+});
+
+dropZone.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+  dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+
+  const file = e.dataTransfer.files[0];
+  addFile(file);
+});
+
+render();
 </script>
 
 </body>
