@@ -5,107 +5,20 @@
 <title>Loult Stickers Bank</title>
 
 <style>
-body{
-  margin:0;
-  padding:20px;
-  background:#111;
-  color:white;
-  font-family:Arial,sans-serif;
-}
-
-h1{
-  text-align:center;
-}
-
-.section{
-  background:#1b1b1b;
-  border:1px solid #444;
-  border-radius:12px;
-  padding:15px;
-  margin-bottom:20px;
-}
-
-input, select, button{
-  padding:10px;
-  margin:5px;
-  border-radius:6px;
-  border:none;
-}
-
-button{
-  cursor:pointer;
-  background:#333;
-  color:white;
-  border:1px solid #777;
-}
-
-button:hover{
-  background:#555;
-}
-
-.themes{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.theme-box{
-  background:#222;
-  border:1px solid #555;
-  border-radius:10px;
-  padding:15px;
-  min-width:140px;
-  cursor:pointer;
-  text-align:center;
-}
-
-.theme-box:hover{
-  background:#333;
-}
-
-.theme-title{
-  font-weight:bold;
-}
-
-.theme-count{
-  color:#aaa;
-  font-size:13px;
-  margin-top:5px;
-}
-
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:15px;
-}
-
-.card{
-  background:#1b1b1b;
-  border:1px solid #444;
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
-}
-
-.card img{
-  max-width:120px;
-  max-height:120px;
-  object-fit:contain;
-}
-
-.sticker-name{
-  margin-top:8px;
-  font-weight:bold;
-}
-
-.current-theme{
-  text-align:center;
-  margin:20px 0;
-}
-
-.hidden{
-  display:none;
-}
+body{margin:0;padding:20px;background:#111;color:white;font-family:Arial}
+h1{text-align:center}
+.section{background:#1b1b1b;border:1px solid #444;border-radius:12px;padding:15px;margin-bottom:20px}
+input,select,button{padding:10px;margin:5px;border-radius:6px}
+button{cursor:pointer;background:#333;color:white;border:1px solid #777}
+button:hover{background:#555}
+.themes{display:flex;flex-wrap:wrap;gap:10px}
+.theme{background:#222;border:1px solid #555;border-radius:10px;padding:15px;min-width:150px;text-align:center;cursor:pointer}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px}
+.card{background:#1b1b1b;border:1px solid #444;border-radius:10px;padding:10px;text-align:center}
+.card img{max-width:120px;max-height:120px;object-fit:contain}
+.hidden{display:none}
+.favorite{color:gold;font-size:20px}
+.topbar{text-align:center;margin-bottom:15px}
 </style>
 </head>
 
@@ -116,7 +29,7 @@ button:hover{
 <div class="section">
   <h2>Créer un thème</h2>
   <input id="themeName" placeholder="Nom du thème">
-  <button onclick="addTheme()">Créer le thème</button>
+  <button id="addThemeBtn">Créer le thème</button>
 </div>
 
 <div class="section">
@@ -124,225 +37,344 @@ button:hover{
   <input id="stickerFile" type="file" accept="image/*">
   <input id="stickerName" placeholder="Nom du sticker">
   <select id="themeSelect"></select>
-  <button onclick="addSticker()">Ajouter le sticker</button>
+  <button id="addStickerBtn">Ajouter le sticker</button>
+</div>
+
+<div class="section">
+  <h2>Recherche</h2>
+  <input id="searchInput" placeholder="Rechercher sticker ou thème...">
+  <button id="showFavoritesBtn">Voir favoris ⭐</button>
+  <button id="showAllBtn">Voir tous les thèmes</button>
 </div>
 
 <div class="section">
   <h2>Thèmes</h2>
-  <div class="themes" id="themesContainer"></div>
+  <div id="themes" class="themes"></div>
 </div>
 
-<div id="stickersSection" class="hidden">
-  <div class="current-theme">
-    <h2 id="currentThemeTitle"></h2>
-    <button onclick="backToThemes()">Retour aux thèmes</button>
+<div id="stickersView" class="hidden">
+  <div class="topbar">
+    <h2 id="themeTitle"></h2>
+    <button id="backBtn">Retour aux thèmes</button>
   </div>
-
-  <div class="gallery" id="gallery"></div>
+  <div id="gallery" class="gallery"></div>
 </div>
 
 <script>
-const STORAGE_KEY = "loult_sticker_bank_themes_v1";
+let db;
+let currentThemeId = null;
+let favoriteMode = false;
 
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || `{
-  "themes": [],
-  "stickers": []
-}`);
+const request = indexedDB.open("LoultStickersDB", 2);
 
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+request.onupgradeneeded = e => {
+  db = e.target.result;
 
-function normalize(text){
-  return text.trim();
-}
-
-function sortAlpha(list, key){
-  return list.sort((a,b) => a[key].localeCompare(b[key], "fr", { sensitivity: "base" }));
-}
-
-function addTheme(){
-  const input = document.getElementById("themeName");
-  const name = normalize(input.value);
-
-  if(!name){
-    alert("Écris un nom de thème.");
-    return;
+  if (!db.objectStoreNames.contains("themes")) {
+    db.createObjectStore("themes", { keyPath: "id" });
   }
 
-  const exists = data.themes.some(t => t.name.toLowerCase() === name.toLowerCase());
+  if (!db.objectStoreNames.contains("stickers")) {
+    db.createObjectStore("stickers", { keyPath: "id" });
+  }
+};
 
-  if(exists){
-    alert("Ce thème existe déjà.");
-    return;
+request.onsuccess = e => {
+  db = e.target.result;
+  renderAll();
+};
+
+function tx(store, mode = "readonly") {
+  return db.transaction(store, mode).objectStore(store);
+}
+
+function getAll(store) {
+  return new Promise(resolve => {
+    const req = tx(store).getAll();
+    req.onsuccess = () => resolve(req.result);
+  });
+}
+
+function put(store, value) {
+  return new Promise(resolve => {
+    const req = tx(store, "readwrite").put(value);
+    req.onsuccess = () => resolve();
+  });
+}
+
+function del(store, id) {
+  return new Promise(resolve => {
+    const req = tx(store, "readwrite").delete(id);
+    req.onsuccess = () => resolve();
+  });
+}
+
+async function addTheme() {
+  const name = document.getElementById("themeName").value.trim();
+  if (!name) return alert("Écris un thème.");
+
+  const themes = await getAll("themes");
+
+  if (themes.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+    return alert("Ce thème existe déjà.");
   }
 
-  data.themes.push({
-    id: Date.now().toString(),
-    name: name
+  await put("themes", {
+    id: crypto.randomUUID(),
+    name
   });
 
-  save();
-  input.value = "";
-  render();
+  document.getElementById("themeName").value = "";
+  renderAll();
 }
 
-function addSticker(){
-  const fileInput = document.getElementById("stickerFile");
-  const nameInput = document.getElementById("stickerName");
-  const themeSelect = document.getElementById("themeSelect");
+async function renameTheme(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+  if (!theme) return;
 
-  const file = fileInput.files[0];
-  const name = normalize(nameInput.value);
-  const themeId = themeSelect.value;
+  const newName = prompt("Nouveau nom du thème :", theme.name);
+  if (!newName) return;
 
-  if(!file){
-    alert("Choisis un fichier image.");
-    return;
-  }
-
-  if(!name){
-    alert("Donne un nom au sticker.");
-    return;
-  }
-
-  if(!themeId){
-    alert("Crée ou choisis un thème.");
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = function(e){
-    data.stickers.push({
-      id: Date.now().toString(),
-      name: name,
-      themeId: themeId,
-      image: e.target.result
-    });
-
-    save();
-
-    fileInput.value = "";
-    nameInput.value = "";
-
-    render();
-  };
-
-  reader.readAsDataURL(file);
+  theme.name = newName.trim();
+  await put("themes", theme);
+  renderAll();
 }
 
-function deleteSticker(id){
-  if(!confirm("Supprimer ce sticker ?")) return;
+async function addSticker() {
+  const file = document.getElementById("stickerFile").files[0];
+  const name = document.getElementById("stickerName").value.trim();
+  const themeId = document.getElementById("themeSelect").value;
 
-  data.stickers = data.stickers.filter(s => s.id !== id);
+  if (!file) return alert("Choisis un fichier.");
+  if (!name) return alert("Donne un nom au sticker.");
+  if (!themeId) return alert("Choisis un thème.");
 
-  save();
-  render();
+  await put("stickers", {
+    id: crypto.randomUUID(),
+    name,
+    themeId,
+    file,
+    favorite: false
+  });
+
+  document.getElementById("stickerFile").value = "";
+  document.getElementById("stickerName").value = "";
+
+  renderAll();
 }
 
-function deleteTheme(id){
-  const hasStickers = data.stickers.some(s => s.themeId === id);
+async function renameSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
 
-  if(hasStickers){
-    alert("Impossible de supprimer ce thème : il contient des stickers.");
-    return;
+  const newName = prompt("Nouveau nom du sticker :", sticker.name);
+  if (!newName) return;
+
+  sticker.name = newName.trim();
+  await put("stickers", sticker);
+
+  if (favoriteMode) openFavorites();
+  else openTheme(sticker.themeId);
+}
+
+async function toggleFavorite(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  sticker.favorite = !sticker.favorite;
+  await put("stickers", sticker);
+
+  if (favoriteMode) openFavorites();
+  else openTheme(sticker.themeId);
+}
+
+async function deleteSticker(id, themeId) {
+  if (!confirm("Supprimer ce sticker ?")) return;
+
+  await del("stickers", id);
+
+  if (favoriteMode) openFavorites();
+  else openTheme(themeId);
+
+  renderAll();
+}
+
+async function deleteTheme(id) {
+  const stickers = await getAll("stickers");
+
+  if (stickers.some(s => s.themeId === id)) {
+    return alert("Supprime d'abord les stickers dans ce thème.");
   }
 
-  if(!confirm("Supprimer ce thème ?")) return;
+  if (!confirm("Supprimer ce thème ?")) return;
 
-  data.themes = data.themes.filter(t => t.id !== id);
-
-  save();
-  render();
+  await del("themes", id);
+  renderAll();
 }
 
-function renderThemeSelect(){
+async function renderAll() {
+  const themes = await getAll("themes");
+  const stickers = await getAll("stickers");
+
+  renderThemeSelect(themes);
+  renderThemes(themes, stickers);
+}
+
+function renderThemeSelect(themes) {
   const select = document.getElementById("themeSelect");
   select.innerHTML = "";
 
-  const sortedThemes = sortAlpha([...data.themes], "name");
-
-  if(sortedThemes.length === 0){
-    const option = document.createElement("option");
-    option.value = "";
-    option.textContent = "Aucun thème";
-    select.appendChild(option);
-    return;
-  }
-
-  sortedThemes.forEach(theme => {
-    const option = document.createElement("option");
-    option.value = theme.id;
-    option.textContent = theme.name;
-    select.appendChild(option);
-  });
+  themes
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(theme => {
+      const option = document.createElement("option");
+      option.value = theme.id;
+      option.textContent = theme.name;
+      select.appendChild(option);
+    });
 }
 
-function renderThemes(){
-  const container = document.getElementById("themesContainer");
+function renderThemes(themes, stickers) {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const container = document.getElementById("themes");
   container.innerHTML = "";
 
-  const sortedThemes = sortAlpha([...data.themes], "name");
+  themes
+    .filter(theme => theme.name.toLowerCase().includes(search))
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(theme => {
+      const count = stickers.filter(s => s.themeId === theme.id).length;
 
-  sortedThemes.forEach(theme => {
-    const count = data.stickers.filter(s => s.themeId === theme.id).length;
+      const box = document.createElement("div");
+      box.className = "theme";
 
-    const box = document.createElement("div");
-    box.className = "theme-box";
+      box.innerHTML = `
+        <strong>${theme.name}</strong><br>
+        <small>${count} sticker(s)</small><br>
+      `;
 
-    box.onclick = () => openTheme(theme.id);
+      const openBtn = document.createElement("button");
+      openBtn.textContent = "Ouvrir";
+      openBtn.onclick = e => {
+        e.stopPropagation();
+        openTheme(theme.id);
+      };
 
-    box.innerHTML = `
-      <div class="theme-title">${theme.name}</div>
-      <div class="theme-count">${count} sticker(s)</div>
-      <button onclick="event.stopPropagation(); deleteTheme('${theme.id}')">Supprimer</button>
-    `;
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Renommer";
+      renameBtn.onclick = e => {
+        e.stopPropagation();
+        renameTheme(theme.id);
+      };
 
-    container.appendChild(box);
-  });
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = e => {
+        e.stopPropagation();
+        deleteTheme(theme.id);
+      };
+
+      box.onclick = () => openTheme(theme.id);
+
+      box.appendChild(openBtn);
+      box.appendChild(renameBtn);
+      box.appendChild(deleteBtn);
+
+      container.appendChild(box);
+    });
 }
 
-function openTheme(themeId){
-  const theme = data.themes.find(t => t.id === themeId);
-  if(!theme) return;
+async function openTheme(themeId) {
+  favoriteMode = false;
+  currentThemeId = themeId;
 
-  document.getElementById("stickersSection").classList.remove("hidden");
-  document.getElementById("currentThemeTitle").textContent = theme.name;
+  const themes = await getAll("themes");
+  const stickers = await getAll("stickers");
 
+  const theme = themes.find(t => t.id === themeId);
+  if (!theme) return;
+
+  document.getElementById("stickersView").classList.remove("hidden");
+  document.getElementById("themeTitle").textContent = theme.name;
+
+  renderStickers(
+    stickers.filter(s => s.themeId === themeId),
+    themeId
+  );
+}
+
+async function openFavorites() {
+  favoriteMode = true;
+
+  const stickers = await getAll("stickers");
+
+  document.getElementById("stickersView").classList.remove("hidden");
+  document.getElementById("themeTitle").textContent = "Favoris ⭐";
+
+  renderStickers(stickers.filter(s => s.favorite), null);
+}
+
+function renderStickers(stickers, themeId) {
+  const search = document.getElementById("searchInput").value.toLowerCase();
   const gallery = document.getElementById("gallery");
+
   gallery.innerHTML = "";
 
-  const stickers = sortAlpha(
-    data.stickers.filter(s => s.themeId === themeId),
-    "name"
-  );
+  stickers
+    .filter(s => s.name.toLowerCase().includes(search))
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(sticker => {
+      const url = URL.createObjectURL(sticker.file);
 
-  stickers.forEach(sticker => {
-    const card = document.createElement("div");
-    card.className = "card";
+      const card = document.createElement("div");
+      card.className = "card";
 
-    card.innerHTML = `
-      <img src="${sticker.image}">
-      <div class="sticker-name">${sticker.name}</div>
-      <button onclick="deleteSticker('${sticker.id}')">Supprimer</button>
-    `;
+      const star = sticker.favorite ? "⭐" : "☆";
 
-    gallery.appendChild(card);
-  });
+      card.innerHTML = `
+        <img src="${url}">
+        <div><strong>${sticker.name}</strong></div>
+        <button>${star}</button>
+        <button>Renommer</button>
+        <button>Supprimer</button>
+      `;
+
+      const buttons = card.querySelectorAll("button");
+
+      buttons[0].onclick = () => toggleFavorite(sticker.id);
+      buttons[1].onclick = () => renameSticker(sticker.id);
+      buttons[2].onclick = () => deleteSticker(sticker.id, sticker.themeId);
+
+      gallery.appendChild(card);
+    });
 }
 
-function backToThemes(){
-  document.getElementById("stickersSection").classList.add("hidden");
-}
+document.getElementById("addThemeBtn").onclick = addTheme;
+document.getElementById("addStickerBtn").onclick = addSticker;
+document.getElementById("backBtn").onclick = () => {
+  document.getElementById("stickersView").classList.add("hidden");
+};
 
-function render(){
-  renderThemeSelect();
-  renderThemes();
-  backToThemes();
-}
+document.getElementById("showFavoritesBtn").onclick = openFavorites;
 
-render();
+document.getElementById("showAllBtn").onclick = () => {
+  favoriteMode = false;
+  document.getElementById("stickersView").classList.add("hidden");
+  renderAll();
+};
+
+document.getElementById("searchInput").oninput = async () => {
+  renderAll();
+
+  if (favoriteMode) {
+    openFavorites();
+  } else if (currentThemeId) {
+    openTheme(currentThemeId);
+  }
+};
 </script>
 
 </body>
