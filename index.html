@@ -2,43 +2,83 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Banque de stickers Loult</title>
+<title>Loult Stickers Bank</title>
+
 <style>
 body{
+  margin:0;
+  padding:20px;
   background:#111;
   color:white;
   font-family:Arial,sans-serif;
-  margin:0;
-  padding:20px;
 }
-h1{text-align:center}
-#dropZone{
-  border:3px dashed #666;
-  border-radius:15px;
-  padding:35px;
+
+h1{
   text-align:center;
+}
+
+.section{
+  background:#1b1b1b;
+  border:1px solid #444;
+  border-radius:12px;
+  padding:15px;
   margin-bottom:20px;
 }
-#dropZone.dragover{
-  background:#222;
-  border-color:white;
-}
-input,button{
+
+input, select, button{
   padding:10px;
   margin:5px;
   border-radius:6px;
+  border:none;
 }
+
 button{
   cursor:pointer;
   background:#333;
   color:white;
   border:1px solid #777;
 }
+
+button:hover{
+  background:#555;
+}
+
+.themes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.theme-box{
+  background:#222;
+  border:1px solid #555;
+  border-radius:10px;
+  padding:15px;
+  min-width:140px;
+  cursor:pointer;
+  text-align:center;
+}
+
+.theme-box:hover{
+  background:#333;
+}
+
+.theme-title{
+  font-weight:bold;
+}
+
+.theme-count{
+  color:#aaa;
+  font-size:13px;
+  margin-top:5px;
+}
+
 .gallery{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
   gap:15px;
 }
+
 .card{
   background:#1b1b1b;
   border:1px solid #444;
@@ -46,117 +86,261 @@ button{
   padding:10px;
   text-align:center;
 }
+
 .card img{
   max-width:120px;
   max-height:120px;
+  object-fit:contain;
+}
+
+.sticker-name{
+  margin-top:8px;
+  font-weight:bold;
+}
+
+.current-theme{
+  text-align:center;
+  margin:20px 0;
+}
+
+.hidden{
+  display:none;
 }
 </style>
 </head>
+
 <body>
 
-<h1>Banque de stickers Loult</h1>
+<h1>Loult Stickers Bank</h1>
 
-<div id="dropZone">
-  <h2>Glisse un sticker ici</h2>
-  <p>ou choisis un fichier</p>
-  <input type="file" id="fileInput" accept="image/*">
+<div class="section">
+  <h2>Créer un thème</h2>
+  <input id="themeName" placeholder="Nom du thème">
+  <button onclick="addTheme()">Créer le thème</button>
 </div>
 
-<div class="gallery" id="gallery"></div>
+<div class="section">
+  <h2>Ajouter un sticker</h2>
+  <input id="stickerFile" type="file" accept="image/*">
+  <input id="stickerName" placeholder="Nom du sticker">
+  <select id="themeSelect"></select>
+  <button onclick="addSticker()">Ajouter le sticker</button>
+</div>
+
+<div class="section">
+  <h2>Thèmes</h2>
+  <div class="themes" id="themesContainer"></div>
+</div>
+
+<div id="stickersSection" class="hidden">
+  <div class="current-theme">
+    <h2 id="currentThemeTitle"></h2>
+    <button onclick="backToThemes()">Retour aux thèmes</button>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+</div>
 
 <script>
-const STORAGE_KEY = "loult_stickers_v2";
+const STORAGE_KEY = "loult_sticker_bank_themes_v1";
 
-const fileInput = document.getElementById("fileInput");
-const dropZone = document.getElementById("dropZone");
-const gallery = document.getElementById("gallery");
-
-let stickers = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY) || `{
+  "themes": [],
+  "stickers": []
+}`);
 
 function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stickers));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function render(){
-  gallery.innerHTML = "";
+function normalize(text){
+  return text.trim();
+}
 
-  stickers.forEach((sticker, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
+function sortAlpha(list, key){
+  return list.sort((a,b) => a[key].localeCompare(b[key], "fr", { sensitivity: "base" }));
+}
 
-    const img = document.createElement("img");
-    img.src = sticker.image;
+function addTheme(){
+  const input = document.getElementById("themeName");
+  const name = normalize(input.value);
 
-    const name = document.createElement("div");
-    name.textContent = sticker.name;
+  if(!name){
+    alert("Écris un nom de thème.");
+    return;
+  }
 
-    const copyBtn = document.createElement("button");
-    copyBtn.textContent = "Copier";
-    copyBtn.onclick = () => {
-      navigator.clipboard.writeText(sticker.image);
-      alert("Sticker copié !");
-    };
+  const exists = data.themes.some(t => t.name.toLowerCase() === name.toLowerCase());
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Supprimer";
-    deleteBtn.onclick = () => {
-      stickers.splice(index, 1);
-      save();
-      render();
-    };
+  if(exists){
+    alert("Ce thème existe déjà.");
+    return;
+  }
 
-    card.appendChild(img);
-    card.appendChild(name);
-    card.appendChild(copyBtn);
-    card.appendChild(deleteBtn);
-
-    gallery.appendChild(card);
+  data.themes.push({
+    id: Date.now().toString(),
+    name: name
   });
+
+  save();
+  input.value = "";
+  render();
 }
 
-function addFile(file){
-  if(!file || !file.type.startsWith("image/")){
-    alert("Choisis une image.");
+function addSticker(){
+  const fileInput = document.getElementById("stickerFile");
+  const nameInput = document.getElementById("stickerName");
+  const themeSelect = document.getElementById("themeSelect");
+
+  const file = fileInput.files[0];
+  const name = normalize(nameInput.value);
+  const themeId = themeSelect.value;
+
+  if(!file){
+    alert("Choisis un fichier image.");
+    return;
+  }
+
+  if(!name){
+    alert("Donne un nom au sticker.");
+    return;
+  }
+
+  if(!themeId){
+    alert("Crée ou choisis un thème.");
     return;
   }
 
   const reader = new FileReader();
 
   reader.onload = function(e){
-    stickers.push({
-      name: file.name,
+    data.stickers.push({
+      id: Date.now().toString(),
+      name: name,
+      themeId: themeId,
       image: e.target.result
     });
 
     save();
-    render();
 
     fileInput.value = "";
+    nameInput.value = "";
+
+    render();
   };
 
   reader.readAsDataURL(file);
 }
 
-fileInput.addEventListener("change", () => {
-  addFile(fileInput.files[0]);
-});
+function deleteSticker(id){
+  if(!confirm("Supprimer ce sticker ?")) return;
 
-dropZone.addEventListener("dragover", e => {
-  e.preventDefault();
-  dropZone.classList.add("dragover");
-});
+  data.stickers = data.stickers.filter(s => s.id !== id);
 
-dropZone.addEventListener("dragleave", () => {
-  dropZone.classList.remove("dragover");
-});
+  save();
+  render();
+}
 
-dropZone.addEventListener("drop", e => {
-  e.preventDefault();
-  dropZone.classList.remove("dragover");
+function deleteTheme(id){
+  const hasStickers = data.stickers.some(s => s.themeId === id);
 
-  const file = e.dataTransfer.files[0];
-  addFile(file);
-});
+  if(hasStickers){
+    alert("Impossible de supprimer ce thème : il contient des stickers.");
+    return;
+  }
+
+  if(!confirm("Supprimer ce thème ?")) return;
+
+  data.themes = data.themes.filter(t => t.id !== id);
+
+  save();
+  render();
+}
+
+function renderThemeSelect(){
+  const select = document.getElementById("themeSelect");
+  select.innerHTML = "";
+
+  const sortedThemes = sortAlpha([...data.themes], "name");
+
+  if(sortedThemes.length === 0){
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Aucun thème";
+    select.appendChild(option);
+    return;
+  }
+
+  sortedThemes.forEach(theme => {
+    const option = document.createElement("option");
+    option.value = theme.id;
+    option.textContent = theme.name;
+    select.appendChild(option);
+  });
+}
+
+function renderThemes(){
+  const container = document.getElementById("themesContainer");
+  container.innerHTML = "";
+
+  const sortedThemes = sortAlpha([...data.themes], "name");
+
+  sortedThemes.forEach(theme => {
+    const count = data.stickers.filter(s => s.themeId === theme.id).length;
+
+    const box = document.createElement("div");
+    box.className = "theme-box";
+
+    box.onclick = () => openTheme(theme.id);
+
+    box.innerHTML = `
+      <div class="theme-title">${theme.name}</div>
+      <div class="theme-count">${count} sticker(s)</div>
+      <button onclick="event.stopPropagation(); deleteTheme('${theme.id}')">Supprimer</button>
+    `;
+
+    container.appendChild(box);
+  });
+}
+
+function openTheme(themeId){
+  const theme = data.themes.find(t => t.id === themeId);
+  if(!theme) return;
+
+  document.getElementById("stickersSection").classList.remove("hidden");
+  document.getElementById("currentThemeTitle").textContent = theme.name;
+
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+
+  const stickers = sortAlpha(
+    data.stickers.filter(s => s.themeId === themeId),
+    "name"
+  );
+
+  stickers.forEach(sticker => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${sticker.image}">
+      <div class="sticker-name">${sticker.name}</div>
+      <button onclick="deleteSticker('${sticker.id}')">Supprimer</button>
+    `;
+
+    gallery.appendChild(card);
+  });
+}
+
+function backToThemes(){
+  document.getElementById("stickersSection").classList.add("hidden");
+}
+
+function render(){
+  renderThemeSelect();
+  renderThemes();
+  backToThemes();
+}
 
 render();
 </script>
