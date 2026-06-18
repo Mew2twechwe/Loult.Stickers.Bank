@@ -61,19 +61,28 @@ button:hover{background:#555}
 
   <div class="section">
     <h2>Créer un thème</h2>
-    <input id="themeName" placeholder="Nom du thème">
+    <div style="
+display:flex;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+">
 
-    <label style="display:block;margin-top:10px;color:#ccc;">
-      Icône / illustration du thème
-    </label>
+<input id="themeName" placeholder="Nom du thème">
 
-    <input
-      id="themeIcon"
-      type="file"
-      accept="image/*"
-    >
+<label style="color:#ccc;font-size:13px;">
+  Icône / illustration :
+</label>
 
-    <button id="addThemeBtn">Créer le thème</button>
+<input
+  id="themeIcon"
+  type="file"
+  accept="image/*"
+>
+
+<button id="addThemeBtn">Créer le thème</button>
+
+</div>
 
     <div class="sub-section">
       <h3>Ajouter un sticker dans un thème</h3>
@@ -87,6 +96,16 @@ button:hover{background:#555}
 
   <div class="section">
     <h2>Recherche</h2>
+
+    <div id="quickThemes" style="
+display:flex;
+align-items:flex-start;
+gap:15px;
+overflow-x:auto;
+margin-top:15px;
+margin-bottom:15px;
+"></div>
+
     <input class="search" id="searchInput" placeholder="Rechercher un sticker...">
     <button id="searchBtn">Appliquer</button>
     <button id="goThemesBtn" class="big-btn">Voir tous les thèmes</button>
@@ -245,6 +264,7 @@ async function renderAll() {
 
   renderThemeSelect(themes);
   renderThemes(themes, stickers);
+  renderQuickThemes(themes);
   renderFavorites(stickers);
 }
 
@@ -259,6 +279,70 @@ function renderThemeSelect(themes) {
       option.value = theme.id;
       option.textContent = theme.name;
       select.appendChild(option);
+    });
+}
+
+function renderQuickThemes(themes){
+
+  const container =
+    document.getElementById("quickThemes");
+
+  container.innerHTML = "";
+
+  themes
+    .sort((a,b)=>
+      a.name.localeCompare(b.name,"fr")
+    )
+    .forEach(theme=>{
+
+      const div =
+        document.createElement("div");
+
+      div.style.textAlign = "center";
+      div.style.minWidth = "70px";
+      div.style.cursor = "pointer";
+
+      div.onclick = ()=>{
+        document
+          .getElementById("goThemesBtn")
+          .click();
+
+        setTimeout(()=>{
+          openTheme(theme.id);
+        },100);
+      };
+
+      div.innerHTML = `
+        ${
+          theme.icon
+          ?
+          `<img
+             src="${theme.icon}"
+             style="
+               width:55px;
+               height:55px;
+               border-radius:50%;
+               object-fit:cover;
+               border:2px solid #555;
+               display:block;
+               margin:auto;
+             "
+           >`
+          :
+          ""
+        }
+
+        <div style="
+          font-size:11px;
+          margin-top:4px;
+          white-space:nowrap;
+        ">
+          ${theme.name}
+        </div>
+      `;
+
+      container.appendChild(div);
+
     });
 }
 
