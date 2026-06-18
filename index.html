@@ -5,98 +5,24 @@
 <title>Loult Stickers Bank</title>
 
 <style>
-body{
-  margin:0;
-  padding:20px;
-  background:#111;
-  color:white;
-  font-family:Arial, sans-serif;
-}
-
+body{margin:0;padding:20px;background:#111;color:white;font-family:Arial,sans-serif}
 h1{text-align:center}
-
-.section{
-  background:#1b1b1b;
-  border:1px solid #444;
-  border-radius:12px;
-  padding:18px;
-  margin-bottom:20px;
-}
-
-.sub-section{
-  margin-top:18px;
-  padding-top:15px;
-  border-top:1px solid #444;
-  opacity:0.95;
-}
-
-.sub-section h3{
-  font-size:18px;
-  color:#ccc;
-}
-
-input,select,button{
-  padding:10px;
-  margin:5px;
-  border-radius:6px;
-}
-
-button{
-  cursor:pointer;
-  background:#333;
-  color:white;
-  border:1px solid #777;
-}
-
+.section{background:#1b1b1b;border:1px solid #444;border-radius:12px;padding:18px;margin-bottom:20px}
+.sub-section{margin-top:18px;padding-top:15px;border-top:1px solid #444}
+input,select,button{padding:10px;margin:5px;border-radius:6px}
+button{cursor:pointer;background:#333;color:white;border:1px solid #777}
 button:hover{background:#555}
-
-.nav{
-  text-align:center;
-  margin:20px 0;
-}
-
+.big-btn{font-size:22px;padding:18px 35px}
+.nav{text-align:center;margin:25px 0}
 .hidden{display:none}
-
-.themes{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.theme{
-  background:#222;
-  border:1px solid #555;
-  border-radius:10px;
-  padding:15px;
-  min-width:150px;
-  text-align:center;
-  cursor:pointer;
-}
-
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:15px;
-}
-
-.card{
-  background:#1b1b1b;
-  border:1px solid #444;
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
-}
-
-.card img{
-  max-width:120px;
-  max-height:120px;
-  object-fit:contain;
-}
-
-.search{
-  width:80%;
-  max-width:500px;
-}
+.themes{display:flex;flex-wrap:wrap;gap:10px}
+.theme{background:#222;border:1px solid #555;border-radius:10px;padding:15px;min-width:160px;text-align:center;cursor:pointer}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px}
+.card{background:#1b1b1b;border:1px solid #444;border-radius:10px;padding:10px;text-align:center}
+.card img{max-width:120px;max-height:120px;object-fit:contain}
+.search{width:70%;max-width:500px}
+.favorite-bar{border-top:1px solid #444;margin-top:15px;padding-top:15px}
+.favorite-title{font-size:20px;margin-bottom:10px}
 </style>
 </head>
 
@@ -107,12 +33,12 @@ button:hover{background:#555}
 <div id="homePage">
 
   <div class="section">
-    <h2>1. Créer un thème</h2>
+    <h2>Créer un thème</h2>
     <input id="themeName" placeholder="Nom du thème">
     <button id="addThemeBtn">Créer le thème</button>
 
     <div class="sub-section">
-      <h3>2. Ajouter un sticker dans un thème</h3>
+      <h3>Ajouter un sticker dans un thème</h3>
       <input id="stickerFile" type="file" accept="image/*">
       <input id="stickerName" placeholder="Nom du sticker">
       <select id="themeSelect"></select>
@@ -121,18 +47,30 @@ button:hover{background:#555}
   </div>
 
   <div class="section">
-    <h2>Recherche</h2>
-    <input class="search" id="searchInput" placeholder="Rechercher un sticker...">
-    <button id="searchBtn">Rechercher</button>
+    <h2>Recherche et tri</h2>
+    <input class="search" id="searchInput" placeholder="Rechercher un sticker ou thème...">
+
+    <select id="sortSelect">
+      <option value="az">Nom A → Z</option>
+      <option value="za">Nom Z → A</option>
+      <option value="theme">Par thème</option>
+      <option value="fav">Favoris d’abord</option>
+    </select>
+
+    <button id="searchBtn">Appliquer</button>
   </div>
 
   <div class="nav">
-    <button id="goThemesBtn">Voir les thèmes</button>
+    <button id="goThemesBtn" class="big-btn">Voir les thèmes</button>
   </div>
 
   <div class="section">
-    <h2>Favoris ⭐</h2>
-    <div id="favoritesGallery" class="gallery"></div>
+    <h2>Barres de favoris ⭐</h2>
+
+    <input id="favBarName" placeholder="Nom de la barre de favoris">
+    <button id="addFavBarBtn">Créer une barre</button>
+
+    <div id="favoriteBars"></div>
   </div>
 
 </div>
@@ -140,7 +78,7 @@ button:hover{background:#555}
 <div id="themesPage" class="hidden">
 
   <div class="nav">
-    <button id="backHomeBtn">Retour accueil</button>
+    <button id="backHomeBtn" class="big-btn">Retour accueil</button>
   </div>
 
   <div class="section">
@@ -159,7 +97,7 @@ button:hover{background:#555}
 <script>
 let db;
 
-const request = indexedDB.open("LoultStickersDB", 3);
+const request = indexedDB.open("LoultStickersDB", 4);
 
 request.onupgradeneeded = e => {
   db = e.target.result;
@@ -170,6 +108,10 @@ request.onupgradeneeded = e => {
 
   if (!db.objectStoreNames.contains("stickers")) {
     db.createObjectStore("stickers", { keyPath: "id" });
+  }
+
+  if (!db.objectStoreNames.contains("favoriteBars")) {
+    db.createObjectStore("favoriteBars", { keyPath: "id" });
   }
 };
 
@@ -201,6 +143,16 @@ function del(store, id) {
     const req = tx(store, "readwrite").delete(id);
     req.onsuccess = () => resolve();
   });
+}
+
+function sortItems(items) {
+  const sort = document.getElementById("sortSelect").value;
+
+  if (sort === "za") {
+    return items.sort((a,b) => b.name.localeCompare(a.name, "fr"));
+  }
+
+  return items.sort((a,b) => a.name.localeCompare(b.name, "fr"));
 }
 
 async function addTheme() {
@@ -238,7 +190,7 @@ async function addSticker() {
     name,
     themeId,
     file,
-    favorite:false
+    favoriteBars: []
   });
 
   document.getElementById("stickerFile").value = "";
@@ -247,13 +199,35 @@ async function addSticker() {
   renderAll();
 }
 
+async function addFavoriteBar() {
+  const input = document.getElementById("favBarName");
+  const name = input.value.trim();
+
+  if (!name) return alert("Donne un nom à la barre.");
+
+  const bars = await getAll("favoriteBars");
+
+  if (bars.some(b => b.name.toLowerCase() === name.toLowerCase())) {
+    return alert("Cette barre existe déjà.");
+  }
+
+  await put("favoriteBars", {
+    id: crypto.randomUUID(),
+    name
+  });
+
+  input.value = "";
+  renderAll();
+}
+
 async function renderAll() {
   const themes = await getAll("themes");
   const stickers = await getAll("stickers");
+  const bars = await getAll("favoriteBars");
 
   renderThemeSelect(themes);
   renderThemes(themes, stickers);
-  renderFavorites(stickers);
+  renderFavoriteBars(bars, stickers);
 }
 
 function renderThemeSelect(themes) {
@@ -320,6 +294,7 @@ function renderThemes(themes, stickers) {
 async function openTheme(themeId) {
   const themes = await getAll("themes");
   const stickers = await getAll("stickers");
+  const bars = await getAll("favoriteBars");
 
   const theme = themes.find(t => t.id === themeId);
   if (!theme) return;
@@ -329,75 +304,127 @@ async function openTheme(themeId) {
 
   renderStickers(
     stickers.filter(s => s.themeId === themeId),
-    document.getElementById("gallery")
+    document.getElementById("gallery"),
+    bars
   );
 }
 
-function renderFavorites(stickers) {
-  renderStickers(
-    stickers.filter(s => s.favorite),
-    document.getElementById("favoritesGallery")
-  );
+function renderFavoriteBars(bars, stickers) {
+  const container = document.getElementById("favoriteBars");
+  container.innerHTML = "";
+
+  bars
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(bar => {
+      const div = document.createElement("div");
+      div.className = "favorite-bar";
+
+      const title = document.createElement("div");
+      title.className = "favorite-title";
+      title.textContent = bar.name;
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer la barre";
+      deleteBtn.onclick = () => deleteFavoriteBar(bar.id);
+
+      const gallery = document.createElement("div");
+      gallery.className = "gallery";
+
+      const barStickers = stickers.filter(s => s.favoriteBars && s.favoriteBars.includes(bar.id));
+      renderStickers(barStickers, gallery, bars, true);
+
+      div.appendChild(title);
+      div.appendChild(deleteBtn);
+      div.appendChild(gallery);
+
+      container.appendChild(div);
+    });
 }
 
-function renderStickers(stickers, container) {
+function renderStickers(stickers, container, bars, fromFavoriteBar = false) {
   container.innerHTML = "";
 
   const search = document.getElementById("searchInput").value.toLowerCase();
 
-  stickers
-    .filter(s => s.name.toLowerCase().includes(search))
-    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
-    .forEach(sticker => {
-      const url = URL.createObjectURL(sticker.file);
+  let filtered = stickers.filter(s => s.name.toLowerCase().includes(search));
 
-      const card = document.createElement("div");
-      card.className = "card";
+  filtered = sortItems(filtered);
 
-      const img = document.createElement("img");
-      img.src = url;
+  filtered.forEach(sticker => {
+    const url = URL.createObjectURL(sticker.file);
 
-      const title = document.createElement("div");
-      title.innerHTML = `<strong>${sticker.name}</strong>`;
+    const card = document.createElement("div");
+    card.className = "card";
 
-      const favBtn = document.createElement("button");
-      favBtn.textContent = sticker.favorite ? "⭐" : "☆";
-      favBtn.onclick = () => toggleFavorite(sticker.id);
+    const img = document.createElement("img");
+    img.src = url;
 
-      const renameBtn = document.createElement("button");
-      renameBtn.textContent = "Renommer";
-      renameBtn.onclick = () => renameSticker(sticker.id);
+    const title = document.createElement("div");
+    title.innerHTML = `<strong>${sticker.name}</strong>`;
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Supprimer";
-      deleteBtn.onclick = () => deleteSticker(sticker.id);
+    const barSelect = document.createElement("select");
+    const empty = document.createElement("option");
+    empty.value = "";
+    empty.textContent = "Ajouter à une barre";
+    barSelect.appendChild(empty);
 
-      card.appendChild(img);
-      card.appendChild(title);
-      card.appendChild(favBtn);
-      card.appendChild(renameBtn);
-      card.appendChild(deleteBtn);
-
-      container.appendChild(card);
+    bars.forEach(bar => {
+      const option = document.createElement("option");
+      option.value = bar.id;
+      option.textContent = bar.name;
+      barSelect.appendChild(option);
     });
+
+    barSelect.onchange = () => {
+      if (barSelect.value) addStickerToBar(sticker.id, barSelect.value);
+    };
+
+    const renameBtn = document.createElement("button");
+    renameBtn.textContent = "Renommer";
+    renameBtn.onclick = () => renameSticker(sticker.id);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Supprimer";
+    deleteBtn.onclick = () => deleteSticker(sticker.id);
+
+    card.appendChild(img);
+    card.appendChild(title);
+    card.appendChild(barSelect);
+    card.appendChild(renameBtn);
+    card.appendChild(deleteBtn);
+
+    container.appendChild(card);
+  });
 }
 
-async function toggleFavorite(id) {
+async function addStickerToBar(stickerId, barId) {
   const stickers = await getAll("stickers");
-  const sticker = stickers.find(s => s.id === id);
+  const sticker = stickers.find(s => s.id === stickerId);
 
-  if (!sticker) return;
+  if (!sticker.favoriteBars) sticker.favoriteBars = [];
 
-  sticker.favorite = !sticker.favorite;
-  await put("stickers", sticker);
-
-  renderAll();
-
-  const themes = await getAll("themes");
-  const theme = themes.find(t => t.id === sticker.themeId);
-  if (theme && !document.getElementById("stickersView").classList.contains("hidden")) {
-    openTheme(sticker.themeId);
+  if (!sticker.favoriteBars.includes(barId)) {
+    sticker.favoriteBars.push(barId);
   }
+
+  await put("stickers", sticker);
+  renderAll();
+}
+
+async function deleteFavoriteBar(id) {
+  if (!confirm("Supprimer cette barre de favoris ?")) return;
+
+  const stickers = await getAll("stickers");
+
+  for (const sticker of stickers) {
+    if (sticker.favoriteBars) {
+      sticker.favoriteBars = sticker.favoriteBars.filter(b => b !== id);
+      await put("stickers", sticker);
+    }
+  }
+
+  await del("favoriteBars", id);
+  renderAll();
 }
 
 async function renameTheme(id) {
@@ -422,20 +449,13 @@ async function renameSticker(id) {
   sticker.name = newName.trim();
   await put("stickers", sticker);
   renderAll();
-  openTheme(sticker.themeId);
 }
 
 async function deleteSticker(id) {
   if (!confirm("Supprimer ce sticker ?")) return;
 
-  const stickers = await getAll("stickers");
-  const sticker = stickers.find(s => s.id === id);
-
   await del("stickers", id);
-
   renderAll();
-
-  if (sticker) openTheme(sticker.themeId);
 }
 
 async function deleteTheme(id) {
@@ -453,6 +473,7 @@ async function deleteTheme(id) {
 
 document.getElementById("addThemeBtn").onclick = addTheme;
 document.getElementById("addStickerBtn").onclick = addSticker;
+document.getElementById("addFavBarBtn").onclick = addFavoriteBar;
 
 document.getElementById("goThemesBtn").onclick = () => {
   document.getElementById("homePage").classList.add("hidden");
@@ -470,6 +491,7 @@ document.getElementById("backThemesBtn").onclick = () => {
 
 document.getElementById("searchInput").oninput = renderAll;
 document.getElementById("searchBtn").onclick = renderAll;
+document.getElementById("sortSelect").onchange = renderAll;
 </script>
 
 </body>
