@@ -17,16 +17,15 @@ button:hover{background:#555}
 .themes{
   display:flex;
   flex-wrap:wrap;
-  gap:12px;
-  align-items:flex-start;
+  gap:10px;
 }
 
 .theme{
   background:#222;
   border:1px solid #555;
   border-radius:15px;
-  padding:12px;
-  width:95px;
+  padding:20px;
+  min-width:180px;
   text-align:center;
   cursor:pointer;
 }
@@ -64,10 +63,15 @@ button:hover{background:#555}
     <h2>Créer un thème</h2>
     <input id="themeName" placeholder="Nom du thème">
 
-    <label style="color:#ccc;font-size:13px;">
-      Icône / illustration :
-      <input id="themeIcon" type="file" accept="image/*">
+    <label style="display:block;margin-top:10px;color:#ccc;">
+      Icône / illustration du thème
     </label>
+
+    <input
+      id="themeIcon"
+      type="file"
+      accept="image/*"
+    >
 
     <button id="addThemeBtn">Créer le thème</button>
 
@@ -271,8 +275,24 @@ function renderThemes(themes, stickers) {
       box.className = "theme";
 
       box.innerHTML = `
-        ${theme.icon ? `<img src="${theme.icon}">` : ""}
-        <strong>${theme.name}</strong>
+        ${
+          theme.icon
+            ? `<img src="${theme.icon}"
+                 style="
+                   width:90px;
+                   height:90px;
+                   object-fit:cover;
+                   border-radius:50%;
+                   border:3px solid #555;
+                   display:block;
+                   margin:0 auto 12px;
+                   background:#1a1a1a;
+                 ">`
+            : ""
+        }
+
+        <strong>${theme.name}</strong><br>
+        <small>${count} sticker(s)</small><br>
       `;
 
       const openBtn = document.createElement("button");
