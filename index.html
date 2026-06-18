@@ -15,7 +15,7 @@ button:hover{background:#555}
 .big-btn{font-size:20px;padding:16px 30px}
 .hidden{display:none}
 .themes{display:flex;flex-wrap:wrap;gap:10px}
-.theme{background:#222;border:1px solid #555;border-radius:10px;padding:15px;min-width:160px;text-align:center;cursor:pointer}
+.theme{background:#222;border:1px solid #555;border-radius:15px;padding:20px;min-width:180px;text-align:center;cursor:pointer}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px}
 .card{background:#1b1b1b;border:1px solid #444;border-radius:10px;padding:10px;text-align:center}
 .card img{max-width:120px;max-height:120px;object-fit:contain}
@@ -32,6 +32,7 @@ button:hover{background:#555}
   <div class="section">
     <h2>Créer un thème</h2>
     <input id="themeName" placeholder="Nom du thème">
+    <input id="themeIcon" type="file" accept="image/*">
     <button id="addThemeBtn">Créer le thème</button>
 
     <div class="sub-section">
@@ -123,8 +124,18 @@ function del(store, id) {
   });
 }
 
+function fileToDataURL(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsDataURL(file);
+  });
+}
+
 async function addTheme() {
   const input = document.getElementById("themeName");
+  const iconInput = document.getElementById("themeIcon");
+
   const name = input.value.trim();
 
   if (!name) return alert("Écris un nom de thème.");
@@ -135,12 +146,21 @@ async function addTheme() {
     return alert("Ce thème existe déjà.");
   }
 
+  let icon = null;
+
+  if (iconInput.files[0]) {
+    icon = await fileToDataURL(iconInput.files[0]);
+  }
+
   await put("themes", {
     id: crypto.randomUUID(),
-    name
+    name,
+    icon
   });
 
   input.value = "";
+  iconInput.value = "";
+
   renderAll();
 }
 
@@ -203,6 +223,19 @@ function renderThemes(themes, stickers) {
       box.className = "theme";
 
       box.innerHTML = `
+        ${
+          theme.icon
+            ? `<img src="${theme.icon}"
+                 style="
+                   width:80px;
+                   height:80px;
+                   object-fit:contain;
+                   display:block;
+                   margin:0 auto 10px;
+                 ">`
+            : ""
+        }
+
         <strong>${theme.name}</strong><br>
         <small>${count} sticker(s)</small><br>
       `;
