@@ -100,11 +100,14 @@ flex-wrap:wrap;
       <button id="goThemesBtn" class="big-btn">Voir tous les thèmes</button>
 
       <div id="quickThemes" style="
-        display:flex;
-        align-items:center;
-        gap:8px;
-        flex-wrap:wrap;
-      "></div>
+display:flex;
+align-items:center;
+gap:12px;
+overflow-x:auto;
+white-space:nowrap;
+padding-left:10px;
+max-width:900px;
+"></div>
     </div>
   </div>
 
@@ -293,7 +296,8 @@ function renderQuickThemes(themes) {
       const div = document.createElement("div");
 
       div.style.textAlign = "center";
-      div.style.width = "45px";
+      div.style.width = "65px";
+      div.style.flexShrink = "0";
       div.style.cursor = "pointer";
 
       div.onclick = () => {
@@ -303,8 +307,8 @@ function renderQuickThemes(themes) {
 
       div.innerHTML = `
         ${theme.icon ? `<img src="${theme.icon}" style="
-          width:36px;
-          height:36px;
+          width:52px;
+          height:52px;
           border-radius:50%;
           object-fit:cover;
           border:2px solid #555;
@@ -312,7 +316,7 @@ function renderQuickThemes(themes) {
           margin:0 auto 2px;
         ">` : ""}
         <div style="
-          font-size:9px;
+          font-size:11px;
           line-height:1;
           overflow:hidden;
           text-overflow:ellipsis;
