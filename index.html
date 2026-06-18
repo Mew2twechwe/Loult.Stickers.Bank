@@ -70,15 +70,12 @@ flex-wrap:wrap;
 
 <input id="themeName" placeholder="Nom du thème">
 
-<label style="color:#ccc;font-size:13px;">
-  Icône / illustration :
-</label>
-
-<input
-  id="themeIcon"
-  type="file"
-  accept="image/*"
->
+<div style="display:inline-block;vertical-align:top;margin-left:10px;">
+  <label style="display:block;color:#ccc;font-size:13px;margin-bottom:4px;">
+    Icône / illustration :
+  </label>
+  <input id="themeIcon" type="file" accept="image/*">
+</div>
 
 <button id="addThemeBtn">Créer le thème</button>
 
@@ -97,18 +94,18 @@ flex-wrap:wrap;
   <div class="section">
     <h2>Recherche</h2>
 
-    <div id="quickThemes" style="
-display:flex;
-align-items:flex-start;
-gap:15px;
-overflow-x:auto;
-margin-top:15px;
-margin-bottom:15px;
-"></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <input class="search" id="searchInput" placeholder="Rechercher un sticker...">
+      <button id="searchBtn">Appliquer</button>
+      <button id="goThemesBtn" class="big-btn">Voir tous les thèmes</button>
 
-    <input class="search" id="searchInput" placeholder="Rechercher un sticker...">
-    <button id="searchBtn">Appliquer</button>
-    <button id="goThemesBtn" class="big-btn">Voir tous les thèmes</button>
+      <div id="quickThemes" style="
+        display:flex;
+        align-items:center;
+        gap:8px;
+        flex-wrap:wrap;
+      "></div>
+    </div>
   </div>
 
   <div class="section">
@@ -200,6 +197,10 @@ async function addTheme() {
 
   if (!name) return alert("Écris un nom de thème.");
 
+  if (!iconInput.files[0]) {
+    return alert("Ajoute une icône / illustration pour ce thème.");
+  }
+
   const themes = await getAll("themes");
 
   if (themes.some(t => t.name.toLowerCase() === name.toLowerCase())) {
@@ -263,8 +264,8 @@ async function renderAll() {
   const stickers = await getAll("stickers");
 
   renderThemeSelect(themes);
-  renderThemes(themes, stickers);
   renderQuickThemes(themes);
+  renderThemes(themes, stickers);
   renderFavorites(stickers);
 }
 
@@ -282,59 +283,39 @@ function renderThemeSelect(themes) {
     });
 }
 
-function renderQuickThemes(themes){
-
-  const container =
-    document.getElementById("quickThemes");
-
+function renderQuickThemes(themes) {
+  const container = document.getElementById("quickThemes");
   container.innerHTML = "";
 
   themes
-    .sort((a,b)=>
-      a.name.localeCompare(b.name,"fr")
-    )
-    .forEach(theme=>{
-
-      const div =
-        document.createElement("div");
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(theme => {
+      const div = document.createElement("div");
 
       div.style.textAlign = "center";
-      div.style.minWidth = "70px";
+      div.style.width = "45px";
       div.style.cursor = "pointer";
 
-      div.onclick = ()=>{
-        document
-          .getElementById("goThemesBtn")
-          .click();
-
-        setTimeout(()=>{
-          openTheme(theme.id);
-        },100);
+      div.onclick = () => {
+        document.getElementById("goThemesBtn").click();
+        setTimeout(() => openTheme(theme.id), 100);
       };
 
       div.innerHTML = `
-        ${
-          theme.icon
-          ?
-          `<img
-             src="${theme.icon}"
-             style="
-               width:55px;
-               height:55px;
-               border-radius:50%;
-               object-fit:cover;
-               border:2px solid #555;
-               display:block;
-               margin:auto;
-             "
-           >`
-          :
-          ""
-        }
-
+        ${theme.icon ? `<img src="${theme.icon}" style="
+          width:36px;
+          height:36px;
+          border-radius:50%;
+          object-fit:cover;
+          border:2px solid #555;
+          display:block;
+          margin:0 auto 2px;
+        ">` : ""}
         <div style="
-          font-size:11px;
-          margin-top:4px;
+          font-size:9px;
+          line-height:1;
+          overflow:hidden;
+          text-overflow:ellipsis;
           white-space:nowrap;
         ">
           ${theme.name}
@@ -342,7 +323,6 @@ function renderQuickThemes(themes){
       `;
 
       container.appendChild(div);
-
     });
 }
 
