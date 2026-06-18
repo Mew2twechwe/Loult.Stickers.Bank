@@ -291,8 +291,21 @@ function renderThemes(themes, stickers) {
             : ""
         }
 
-        <strong>${theme.name}</strong><br>
-        <small>${count} sticker(s)</small><br>
+        <div style="
+  font-size:18px;
+  font-weight:bold;
+  margin-top:8px;
+">
+  ${theme.name}
+</div>
+
+<div style="
+  color:#aaa;
+  font-size:13px;
+  margin-top:4px;
+">
+  ${count} sticker(s)
+</div>
       `;
 
       const openBtn = document.createElement("button");
