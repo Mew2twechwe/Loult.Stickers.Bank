@@ -14,8 +14,39 @@ button{cursor:pointer;background:#333;color:white;border:1px solid #777}
 button:hover{background:#555}
 .big-btn{font-size:20px;padding:16px 30px}
 .hidden{display:none}
-.themes{display:flex;flex-wrap:wrap;gap:10px}
-.theme{background:#222;border:1px solid #555;border-radius:15px;padding:20px;min-width:180px;text-align:center;cursor:pointer}
+.themes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:flex-start;
+}
+
+.theme{
+  background:#222;
+  border:1px solid #555;
+  border-radius:15px;
+  padding:12px;
+  width:95px;
+  text-align:center;
+  cursor:pointer;
+}
+
+.theme img{
+  width:65px;
+  height:65px;
+  object-fit:cover;
+  border-radius:50%;
+  border:2px solid #555;
+  display:block;
+  margin:0 auto 6px;
+  background:#1a1a1a;
+}
+
+.theme strong{
+  font-size:11px;
+  display:block;
+  line-height:1.1;
+}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px}
 .card{background:#1b1b1b;border:1px solid #444;border-radius:10px;padding:10px;text-align:center}
 .card img{max-width:120px;max-height:120px;object-fit:contain}
@@ -32,19 +63,18 @@ button:hover{background:#555}
   <div class="section">
     <h2>Créer un thème</h2>
     <input id="themeName" placeholder="Nom du thème">
-    <label style="display:block;margin-top:10px;color:#ccc;">
-      Icône / illustration du thème
+
+    <label style="color:#ccc;font-size:13px;">
+      Icône / illustration :
+      <input id="themeIcon" type="file" accept="image/*">
     </label>
-    <input
-      id="themeIcon"
-      type="file"
-      accept="image/*"
-    >
+
     <button id="addThemeBtn">Créer le thème</button>
 
     <div class="sub-section">
       <h3>Ajouter un sticker dans un thème</h3>
       <input id="stickerFile" type="file" accept="image/*">
+      <input id="stickerUrl" placeholder="Ou URL du sticker">
       <input id="stickerName" placeholder="Nom du sticker">
       <select id="themeSelect"></select>
       <button id="addStickerBtn">Ajouter le sticker</button>
@@ -173,22 +203,33 @@ async function addTheme() {
 
 async function addSticker() {
   const file = document.getElementById("stickerFile").files[0];
+  const url = document.getElementById("stickerUrl").value.trim();
   const name = document.getElementById("stickerName").value.trim();
   const themeId = document.getElementById("themeSelect").value;
 
-  if (!file) return alert("Choisis un fichier.");
+  if (!file && !url) return alert("Choisis un fichier ou colle une URL.");
   if (!name) return alert("Donne un nom au sticker.");
   if (!themeId) return alert("Choisis un thème.");
 
-  await put("stickers", {
+  let stickerData = {
     id: crypto.randomUUID(),
     name,
     themeId,
-    file,
     favorite: false
-  });
+  };
+
+  if (file) {
+    stickerData.file = file;
+    stickerData.type = "file";
+  } else {
+    stickerData.url = url;
+    stickerData.type = "url";
+  }
+
+  await put("stickers", stickerData);
 
   document.getElementById("stickerFile").value = "";
+  document.getElementById("stickerUrl").value = "";
   document.getElementById("stickerName").value = "";
 
   renderAll();
@@ -230,24 +271,8 @@ function renderThemes(themes, stickers) {
       box.className = "theme";
 
       box.innerHTML = `
-        ${
-          theme.icon
-            ? `<img src="${theme.icon}"
-                 style="
-                   width:90px;
-                   height:90px;
-                   object-fit:cover;
-                   border-radius:50%;
-                   border:3px solid #555;
-                   display:block;
-                   margin:0 auto 12px;
-                   background:#1a1a1a;
-                 ">`
-            : ""
-        }
-
-        <strong>${theme.name}</strong><br>
-        <small>${count} sticker(s)</small><br>
+        ${theme.icon ? `<img src="${theme.icon}">` : ""}
+        <strong>${theme.name}</strong>
       `;
 
       const openBtn = document.createElement("button");
@@ -312,7 +337,9 @@ function renderStickers(stickers, container) {
     .filter(s => s.name.toLowerCase().includes(search))
     .sort((a,b) => a.name.localeCompare(b.name, "fr"))
     .forEach(sticker => {
-      const url = URL.createObjectURL(sticker.file);
+      const url = sticker.type === "url"
+        ? sticker.url
+        : URL.createObjectURL(sticker.file);
 
       const card = document.createElement("div");
       card.className = "card";
