@@ -111,6 +111,8 @@ button:hover{background:#555}
   box-shadow:
   0 0 20px #7d2cff,
   0 0 45px #ff0080;
+
+  min-height:55px;
 }
 
 #stats{
@@ -132,57 +134,75 @@ button:hover{background:#555}
 .stars3{
   position:absolute;
   inset:0;
+  overflow:hidden;
+  pointer-events:none;
 }
 
 .stars::before,
 .stars2::before,
 .stars3::before{
   content:"";
-
   position:absolute;
-
-  width:3px;
-  height:3px;
-
+  top:-20%;
+  left:0;
+  width:4px;
+  height:4px;
+  border-radius:50%;
   background:white;
 
-  border-radius:50%;
-
   box-shadow:
-  50px 20px white,
-  150px 80px white,
-  250px 40px white,
-  350px 150px white,
-  450px 60px white,
-  550px 200px white,
-  650px 90px white,
-  750px 30px white,
-  850px 180px white;
-
-  animation:fallStars linear infinite;
-}
-
-.stars::before{
-  animation-duration:12s;
+    20px 10px #fff,
+    70px 45px #fff,
+    120px 20px #fff,
+    180px 70px #fff,
+    240px 35px #fff,
+    300px 90px #fff,
+    370px 25px #fff,
+    430px 60px #fff,
+    500px 15px #fff,
+    560px 80px #fff,
+    630px 40px #fff,
+    700px 95px #fff,
+    760px 25px #fff,
+    830px 65px #fff,
+    900px 35px #fff,
+    970px 85px #fff,
+    1040px 15px #fff,
+    1110px 55px #fff,
+    1180px 95px #fff,
+    1250px 40px #fff,
+    1320px 75px #fff,
+    1390px 25px #fff,
+    1460px 90px #fff,
+    1530px 50px #fff;
+    
+  animation:starRain 7s linear infinite;
+  filter:drop-shadow(0 0 5px #fff)
+         drop-shadow(0 0 9px #c77dff);
 }
 
 .stars2::before{
-  animation-duration:20s;
-  opacity:.6;
+  width:2px;
+  height:2px;
+  opacity:.75;
+  animation-duration:10s;
+  animation-delay:-3s;
 }
 
 .stars3::before{
-  animation-duration:28s;
-  opacity:.3;
+  width:6px;
+  height:6px;
+  opacity:.45;
+  animation-duration:13s;
+  animation-delay:-6s;
 }
 
-@keyframes fallStars{
+@keyframes starRain{
   from{
-    transform:translateY(-150%);
+    transform:translateY(-120px);
   }
-
   to{
-    transform:translateY(500%);
+    transform:translateY(260px);
   }
 }
 </style>
