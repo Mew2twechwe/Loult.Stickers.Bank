@@ -700,25 +700,38 @@ function renderThemes(themes, stickers) {
         openTheme(theme.id);
       };
 
-      const renameBtn = document.createElement("button");
-      renameBtn.textContent = "Renommer";
-      renameBtn.onclick = e => {
-        e.stopPropagation();
-        renameTheme(theme.id);
-      };
-
-      const iconBtn = document.createElement("button");
-      iconBtn.textContent = "Icône";
-      iconBtn.onclick = e => {
-        e.stopPropagation();
-        changeThemeIcon(theme.id);
-      };
-
       const pinBtn = document.createElement("button");
       pinBtn.textContent = theme.pinned ? "Désépingler" : "Épingler";
       pinBtn.onclick = e => {
         e.stopPropagation();
         toggleThemePin(theme.id);
+      };
+
+      const editToggle = document.createElement("button");
+      editToggle.className = "edit-toggle";
+      editToggle.textContent = "Éditer ▾";
+      editToggle.onclick = e => {
+        e.stopPropagation();
+        editPanel.classList.toggle("open");
+        editToggle.textContent = editPanel.classList.contains("open") ? "Éditer ▴" : "Éditer ▾";
+      };
+
+      const editPanel = document.createElement("div");
+      editPanel.className = "edit-panel";
+      editPanel.onclick = e => e.stopPropagation();
+
+      const iconBtn = document.createElement("button");
+      iconBtn.textContent = "Changer l'icône";
+      iconBtn.onclick = e => {
+        e.stopPropagation();
+        changeThemeIcon(theme.id);
+      };
+
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Renommer";
+      renameBtn.onclick = e => {
+        e.stopPropagation();
+        renameTheme(theme.id);
       };
 
       const deleteBtn = document.createElement("button");
@@ -728,12 +741,15 @@ function renderThemes(themes, stickers) {
         deleteTheme(theme.id);
       };
 
+      editPanel.appendChild(iconBtn);
+      editPanel.appendChild(renameBtn);
+      editPanel.appendChild(deleteBtn);
+
       box.onclick = () => openTheme(theme.id);
       box.appendChild(openBtn);
-      box.appendChild(renameBtn);
-      box.appendChild(iconBtn);
       box.appendChild(pinBtn);
-      box.appendChild(deleteBtn);
+      box.appendChild(editToggle);
+      box.appendChild(editPanel);
 
       container.appendChild(box);
     });
