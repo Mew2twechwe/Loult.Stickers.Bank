@@ -79,12 +79,128 @@ button:hover{background:#555}
   border-radius:20px;
   box-shadow:0 0 8px #7f5cff;
 }
+
+/* Added stats-astral and stars styles */
+.stats-astral{
+  position:relative;
+  overflow:hidden;
+
+  text-align:center;
+
+  margin:0 auto 20px auto;
+
+  max-width:800px;
+
+  padding:22px;
+
+  border-radius:20px;
+
+  background:
+  radial-gradient(circle at 20% 20%,
+  rgba(255,0,100,.35),
+  transparent 35%),
+
+  radial-gradient(circle at 80% 40%,
+  rgba(120,0,255,.35),
+  transparent 35%),
+
+  #080812;
+
+  border:1px solid #9d4fff;
+
+  box-shadow:
+  0 0 20px #7d2cff,
+  0 0 45px #ff0080;
+}
+
+#stats{
+  position:relative;
+  z-index:10;
+
+  font-size:24px;
+  font-weight:bold;
+
+  color:white;
+
+  text-shadow:
+  0 0 10px #ff00aa,
+  0 0 20px #7d2cff;
+}
+
+.stars,
+.stars2,
+.stars3{
+  position:absolute;
+  inset:0;
+}
+
+.stars::before,
+.stars2::before,
+.stars3::before{
+  content:"";
+
+  position:absolute;
+
+  width:3px;
+  height:3px;
+
+  background:white;
+
+  border-radius:50%;
+
+  box-shadow:
+  50px 20px white,
+  150px 80px white,
+  250px 40px white,
+  350px 150px white,
+  450px 60px white,
+  550px 200px white,
+  650px 90px white,
+  750px 30px white,
+  850px 180px white;
+
+  animation:fallStars linear infinite;
+}
+
+.stars::before{
+  animation-duration:12s;
+}
+
+.stars2::before{
+  animation-duration:20s;
+  opacity:.6;
+}
+
+.stars3::before{
+  animation-duration:28s;
+  opacity:.3;
+}
+
+@keyframes fallStars{
+  from{
+    transform:translateY(-150%);
+  }
+
+  to{
+    transform:translateY(500%);
+  }
+}
 </style>
 </head>
 
 <body>
 
 <h1>Loult Stickers Bank</h1>
+
+<div class="stats-astral">
+
+  <div class="stars"></div>
+  <div class="stars stars2"></div>
+  <div class="stars stars3"></div>
+
+  <div id="stats"></div>
+
+</div>
 
 <div id="homePage">
 
@@ -287,10 +403,25 @@ async function renderAll() {
   const themes = await getAll("themes");
   const stickers = await getAll("stickers");
 
+  renderStats(themes, stickers);
   renderThemeSelect(themes);
   renderQuickThemes(themes);
   renderThemes(themes, stickers);
   renderFavorites(stickers);
+}
+
+function renderStats(themes, stickers){
+
+  const favorites =
+    stickers.filter(s => s.favorite).length;
+
+  document.getElementById("stats").innerHTML = `
+    ✦ ${themes.length} THÈMES ✦
+    &nbsp;&nbsp;&nbsp;
+    ✦ ${stickers.length} STICKERS ✦
+    &nbsp;&nbsp;&nbsp;
+    ✦ ${favorites} FAVORIS ✦
+  `;
 }
 
 function renderThemeSelect(themes) {
