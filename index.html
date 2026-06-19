@@ -412,6 +412,13 @@ function renderThemes(themes, stickers) {
         renameTheme(theme.id);
       };
 
+      const iconBtn = document.createElement("button");
+      iconBtn.textContent = "Icône";
+      iconBtn.onclick = e => {
+        e.stopPropagation();
+        changeThemeIcon(theme.id);
+      };
+
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Supprimer";
       deleteBtn.onclick = e => {
@@ -422,6 +429,7 @@ function renderThemes(themes, stickers) {
       box.onclick = () => openTheme(theme.id);
       box.appendChild(openBtn);
       box.appendChild(renameBtn);
+      box.appendChild(iconBtn);
       box.appendChild(deleteBtn);
 
       container.appendChild(box);
@@ -551,6 +559,29 @@ async function deleteSticker(id) {
   if (sticker && !document.getElementById("stickersView").classList.contains("hidden")) {
     openTheme(sticker.themeId);
   }
+}
+
+async function changeThemeIcon(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+
+  if (!theme) return;
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    theme.icon = await fileToDataURL(file);
+
+    await put("themes", theme);
+    renderAll();
+  };
+
+  input.click();
 }
 
 async function deleteTheme(id) {
