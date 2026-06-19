@@ -540,6 +540,451 @@ button:hover{background:#555}
   padding:7px 9px;
 }
 
+/* ===== DESIGN DES BLOCS PRINCIPAUX ===== */
+
+.section{
+  position:relative;
+  overflow:hidden;
+}
+
+.forge-panel{
+  border:1px solid rgba(255,120,45,.32);
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,95,35,.20), transparent 28%),
+    radial-gradient(circle at 84% 22%, rgba(255,190,80,.10), transparent 30%),
+    linear-gradient(135deg,rgba(24,16,12,.97),rgba(18,18,22,.97) 48%,rgba(30,10,8,.96));
+  box-shadow:
+    inset 0 0 32px rgba(255,80,25,.08),
+    inset 0 0 70px rgba(0,0,0,.70),
+    0 0 22px rgba(255,70,20,.12);
+}
+
+.forge-panel::before{
+  content:"⚒";
+  position:absolute;
+  right:26px;
+  top:18px;
+  font-size:92px;
+  opacity:.055;
+  transform:rotate(-16deg);
+  pointer-events:none;
+  text-shadow:0 0 18px rgba(255,120,50,.55);
+}
+
+.forge-panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(115deg, transparent 0 35%, rgba(255,120,40,.08) 45%, transparent 56%),
+    radial-gradient(circle at 20% 100%, rgba(255,80,25,.14), transparent 30%);
+  pointer-events:none;
+}
+
+.forge-panel h2,
+.forge-panel h3{
+  position:relative;
+  z-index:2;
+  text-shadow:
+    0 0 8px rgba(255,130,55,.55),
+    0 0 18px rgba(255,50,20,.25);
+}
+
+.forge-panel input,
+.forge-panel select{
+  background:rgba(10,8,8,.78);
+  border:1px solid rgba(255,140,70,.25);
+  color:white;
+  box-shadow:inset 0 0 12px rgba(0,0,0,.55);
+}
+
+.forge-panel button{
+  background:linear-gradient(135deg,rgba(70,32,18,.95),rgba(120,48,22,.88));
+  border:1px solid rgba(255,145,70,.35);
+  box-shadow:inset 0 0 10px rgba(255,90,30,.12),0 0 10px rgba(255,70,20,.13);
+}
+
+.forge-panel button:hover{
+  background:linear-gradient(135deg,rgba(95,42,20,.96),rgba(170,66,25,.90));
+}
+
+.astral-search-panel{
+  border:1px solid rgba(170,90,255,.32);
+  background:
+    radial-gradient(circle at 12% 28%, rgba(130,70,255,.22), transparent 30%),
+    radial-gradient(circle at 82% 30%, rgba(255,50,170,.12), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba(60,0,120,.18), transparent 36%),
+    linear-gradient(135deg,rgba(10,10,18,.97),rgba(18,9,30,.97) 55%,rgba(8,15,24,.96));
+  box-shadow:
+    inset 0 0 30px rgba(100,60,255,.10),
+    inset 0 0 70px rgba(0,0,0,.72),
+    0 0 24px rgba(130,80,255,.16);
+}
+
+.astral-search-panel::before{
+  content:"✦";
+  position:absolute;
+  right:28px;
+  top:14px;
+  font-size:86px;
+  opacity:.07;
+  pointer-events:none;
+  color:#d9c2ff;
+  text-shadow:0 0 16px rgba(210,180,255,.80),0 0 32px rgba(140,80,255,.45);
+}
+
+.astral-search-panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 18% 76%, rgba(255,255,255,.20) 0 1px, transparent 2px),
+    radial-gradient(circle at 36% 22%, rgba(210,180,255,.25) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 70%, rgba(255,210,255,.22) 0 1.2px, transparent 2.5px),
+    radial-gradient(circle at 88% 50%, rgba(255,255,255,.18) 0 .8px, transparent 2px);
+  opacity:.75;
+  pointer-events:none;
+  animation:panelStarsPulse 5s ease-in-out infinite alternate;
+}
+
+.astral-search-panel h2{
+  position:relative;
+  z-index:2;
+  text-shadow:0 0 8px rgba(190,140,255,.75),0 0 22px rgba(130,70,255,.45);
+}
+
+.astral-search-panel input{
+  background:rgba(6,6,16,.82);
+  border:1px solid rgba(180,120,255,.30);
+  color:white;
+  box-shadow:inset 0 0 14px rgba(0,0,0,.60),0 0 12px rgba(130,80,255,.12);
+}
+
+.astral-shortcuts-panel{
+  border:1px solid rgba(210,70,180,.30);
+  background:
+    radial-gradient(circle at 18% 25%, rgba(180,0,80,.18), transparent 31%),
+    radial-gradient(circle at 78% 22%, rgba(120,60,255,.20), transparent 31%),
+    radial-gradient(circle at 50% 100%, rgba(120,0,40,.22), transparent 38%),
+    linear-gradient(135deg,rgba(14,8,18,.98),rgba(28,8,30,.97) 50%,rgba(14,8,22,.98));
+  box-shadow:
+    inset 0 0 34px rgba(180,30,130,.10),
+    inset 0 0 78px rgba(0,0,0,.75),
+    0 0 24px rgba(180,40,160,.14);
+}
+
+.astral-shortcuts-panel::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:
+    linear-gradient(120deg, transparent, rgba(255,50,160,.10), transparent 45%),
+    radial-gradient(circle at 15% 15%, rgba(255,70,120,.16), transparent 22%),
+    radial-gradient(circle at 84% 18%, rgba(130,80,255,.18), transparent 25%);
+  pointer-events:none;
+}
+
+.astral-shortcuts-panel h2{
+  position:relative;
+  z-index:2;
+  text-shadow:0 0 8px rgba(255,80,180,.65),0 0 20px rgba(150,80,255,.50);
+}
+
+.shortcut-box{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,120,220,.28);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255,40,120,.14), transparent 30%),
+    radial-gradient(circle at 78% 20%, rgba(120,80,255,.18), transparent 32%),
+    linear-gradient(135deg,rgba(18,12,22,.95),rgba(30,12,36,.95));
+  box-shadow:
+    inset 0 0 16px rgba(255,70,170,.08),
+    inset 0 0 36px rgba(0,0,0,.65),
+    0 0 14px rgba(160,70,255,.14);
+}
+
+.shortcut-box::before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border-radius:13px;
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:inset 0 0 18px rgba(255,80,170,.08),inset 0 0 26px rgba(100,60,255,.08);
+  pointer-events:none;
+}
+
+.shortcut-head,
+.shortcut-actions,
+.shortcut-preview{
+  position:relative;
+  z-index:2;
+}
+
+.shortcut-title{
+  text-shadow:0 0 7px rgba(255,110,210,.55),0 0 17px rgba(125,80,255,.38);
+}
+
+.shortcut-key{
+  background:linear-gradient(135deg,rgba(90,30,90,.72),rgba(55,35,120,.72));
+  border:1px solid rgba(255,150,230,.35);
+  box-shadow:inset 0 0 8px rgba(255,90,190,.12),0 0 10px rgba(150,80,255,.15);
+}
+
+.shortcut-actions button,
+.astral-shortcuts-panel button{
+  background:linear-gradient(135deg,rgba(45,25,70,.94),rgba(90,30,80,.88));
+  border:1px solid rgba(210,120,255,.30);
+  box-shadow:inset 0 0 10px rgba(255,70,180,.08),0 0 10px rgba(150,70,255,.12);
+}
+
+.shortcut-actions button:hover,
+.astral-shortcuts-panel button:hover{
+  background:linear-gradient(135deg,rgba(65,32,100,.96),rgba(125,38,105,.92));
+}
+
+@keyframes panelStarsPulse{
+  from{opacity:.35;transform:translateY(0) scale(1);}
+  to{opacity:.85;transform:translateY(-2px) scale(1.015);}
+}
+
+/* ===== AJUSTEMENTS FORGE ROUGE + ALIGNEMENT INPUTS ===== */
+
+.forge-panel{
+  border:1px solid rgba(255,55,70,.40);
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255,25,50,.24), transparent 28%),
+    radial-gradient(circle at 84% 22%, rgba(255,80,120,.13), transparent 30%),
+    linear-gradient(135deg,rgba(26,8,10,.98),rgba(18,18,22,.97) 48%,rgba(38,4,12,.96));
+  box-shadow:
+    inset 0 0 36px rgba(255,35,55,.10),
+    inset 0 0 74px rgba(0,0,0,.72),
+    0 0 24px rgba(255,20,50,.16);
+}
+
+.forge-panel::before{
+  content:"⚒";
+  right:24px;
+  top:4px;
+  font-size:135px;
+  opacity:.09;
+  color:#ff4b5f;
+  text-shadow:
+    0 0 18px rgba(255,60,80,.75),
+    0 0 35px rgba(255,0,70,.45);
+}
+
+.forge-panel::after{
+  content:"🔥";
+  position:absolute;
+  right:112px;
+  top:46px;
+  font-size:68px;
+  opacity:.16;
+  filter:drop-shadow(0 0 14px rgba(255,30,50,.75));
+  pointer-events:none;
+}
+
+.forge-panel h2,
+.forge-panel h3{
+  text-shadow:
+    0 0 8px rgba(255,70,90,.65),
+    0 0 20px rgba(255,0,70,.32);
+}
+
+.forge-panel input,
+.forge-panel select{
+  background:rgba(12,6,8,.82);
+  border:1px solid rgba(255,70,90,.32);
+  color:white;
+  box-shadow:
+    inset 0 0 12px rgba(0,0,0,.62),
+    0 0 8px rgba(255,30,60,.10);
+}
+
+.forge-panel button{
+  background:linear-gradient(135deg,rgba(78,16,24,.96),rgba(135,26,38,.90));
+  border:1px solid rgba(255,80,95,.42);
+  box-shadow:
+    inset 0 0 10px rgba(255,45,70,.14),
+    0 0 10px rgba(255,25,60,.16);
+}
+
+.forge-panel button:hover{
+  background:linear-gradient(135deg,rgba(105,20,32,.98),rgba(185,35,52,.94));
+}
+
+.forge-create-row{
+  display:flex;
+  align-items:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+  position:relative;
+  z-index:2;
+}
+
+.field-stack{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.field-stack label{
+  color:#ddd;
+  font-size:13px;
+  margin-left:6px;
+}
+
+.field-stack input{
+  margin-top:0;
+}
+
+.url-field{
+  min-width:240px;
+}
+
+.file-url-row{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  position:relative;
+  z-index:2;
+}
+
+.icon-choice-group{
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  position:relative;
+}
+
+.icon-choice-group .field-stack{
+  min-width:210px;
+}
+
+.choice-connector{
+  align-self:center;
+  margin:0 8px 10px 8px;
+  padding:4px 10px;
+  border-radius:999px;
+  color:#ff8b9a;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:1px;
+  background:rgba(35,8,12,.9);
+  border:1px solid rgba(255,90,110,.38);
+  box-shadow:
+    0 0 10px rgba(255,45,75,.25),
+    inset 0 0 8px rgba(255,60,90,.10);
+  text-shadow:0 0 8px rgba(255,80,100,.70);
+}
+
+.choice-connector::before,
+.choice-connector::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:24px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,80,100,.75),transparent);
+}
+
+.choice-connector::before{
+  right:100%;
+}
+
+.choice-connector::after{
+  left:100%;
+}
+
+/* ===== AJUSTEMENT FLAMME + CONNECTEUR OU CENTRÉ ===== */
+
+.forge-symbol{
+  position:absolute;
+  right:28px;
+  top:10px;
+  font-size:128px;
+  opacity:.095;
+  color:#ff4b5f;
+  pointer-events:none;
+  z-index:1;
+  text-shadow:
+    0 0 18px rgba(255,60,80,.75),
+    0 0 35px rgba(255,0,70,.45);
+}
+
+.forge-flame{
+  position:absolute;
+  right:148px;
+  top:52px;
+  font-size:62px;
+  opacity:.20;
+  pointer-events:none;
+  z-index:1;
+  filter:drop-shadow(0 0 14px rgba(255,30,50,.75));
+}
+
+.forge-panel::before,
+.forge-panel::after{
+  content:none !important;
+}
+
+.media-choice-group{
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  position:relative;
+}
+
+.icon-choice-group{
+  display:flex;
+  align-items:flex-end;
+  gap:0;
+  position:relative;
+}
+
+.media-choice-group .field-stack,
+.icon-choice-group .field-stack{
+  min-width:210px;
+}
+
+.choice-connector{
+  position:relative;
+  align-self:flex-end;
+  margin:0 12px 15px 12px;
+  padding:5px 11px;
+  border-radius:999px;
+  color:#ff8b9a;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:1px;
+  background:rgba(35,8,12,.92);
+  border:1px solid rgba(255,90,110,.42);
+  box-shadow:
+    0 0 12px rgba(255,45,75,.30),
+    inset 0 0 8px rgba(255,60,90,.12);
+  text-shadow:0 0 8px rgba(255,80,100,.75);
+}
+
+.choice-connector::before,
+.choice-connector::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:30px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,80,100,.85),transparent);
+}
+
+.choice-connector::before{
+  right:100%;
+}
+
+.choice-connector::after{
+  left:100%;
+}
+
 </style>
 </head>
 
@@ -557,40 +1002,77 @@ button:hover{background:#555}
 
 <div id="homePage">
 
-  <div class="section">
+  <div class="section forge-panel">
+    <span class="forge-flame">🔥</span>
+    <span class="forge-symbol">⚒</span>
     <h2>Créer un thème</h2>
-    <div style="
-display:flex;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-">
+    <div class="forge-create-row">
 
-<input id="themeName" placeholder="Nom du thème">
+      <div class="field-stack">
+        <label>Nom du thème :</label>
+        <input id="themeName" placeholder="Nom du thème">
+      </div>
 
-<div style="display:inline-block;vertical-align:top;margin-left:10px;">
-  <label style="display:block;color:#ccc;font-size:13px;margin-bottom:4px;">
-    Icône / illustration :
-  </label>
-  <input id="themeIcon" type="file" accept="image/*">
-</div>
+      <div class="icon-choice-group">
 
-<button id="addThemeBtn">Créer le thème</button>
+        <div class="field-stack">
+          <label>Icône / illustration :</label>
+          <input id="themeIcon" type="file" accept="image/*">
+        </div>
 
-</div>
+        <div class="choice-connector">OU</div>
+
+        <div class="field-stack">
+          <label>URL de l'icône :</label>
+          <input id="themeIconUrl" class="url-field" placeholder="Lien image de l'icône">
+        </div>
+
+      </div>
+
+      <button id="addThemeBtn">Créer le thème</button>
+
+    </div>
 
     <div class="sub-section">
       <h3>Ajouter un sticker dans un thème</h3>
-      <input id="stickerFile" type="file" accept="image/*">
-      <input id="stickerUrl" placeholder="Ou URL du sticker">
-      <input id="stickerName" placeholder="Nom du sticker">
-      <input id="stickerTags" placeholder="Tags : rire, colère, risitas...">
-      <select id="themeSelect"></select>
-      <button id="addStickerBtn">Ajouter le sticker</button>
+      <div class="file-url-row">
+        <div class="media-choice-group">
+
+          <div class="field-stack">
+            <label>Fichier sticker :</label>
+            <input id="stickerFile" type="file" accept="image/*">
+          </div>
+
+          <div class="choice-connector">OU</div>
+
+          <div class="field-stack">
+            <label>URL du sticker :</label>
+            <input id="stickerUrl" class="url-field" placeholder="Lien image du sticker">
+          </div>
+
+        </div>
+
+        <div class="field-stack">
+          <label>Nom :</label>
+          <input id="stickerName" placeholder="Nom du sticker">
+        </div>
+
+        <div class="field-stack">
+          <label>Tags :</label>
+          <input id="stickerTags" placeholder="rire, colère, risitas...">
+        </div>
+
+        <div class="field-stack">
+          <label>Thème :</label>
+          <select id="themeSelect"></select>
+        </div>
+
+        <button id="addStickerBtn">Ajouter le sticker</button>
+      </div>
     </div>
   </div>
 
-  <div class="section">
+  <div class="section astral-search-panel">
     <h2>Recherche</h2>
 
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
@@ -602,7 +1084,7 @@ flex-wrap:wrap;
     </div>
   </div>
 
-  <div class="section">
+  <div class="section astral-shortcuts-panel">
     <div class="shortcut-toolbar">
       <h2 style="margin-right:auto;">Raccourcis personnels ⌨️</h2>
       <input id="shortcutNameInput" placeholder="Nom du nouveau raccourci">
@@ -745,13 +1227,15 @@ function recordRecentSticker(id) {
 async function addTheme() {
   const input = document.getElementById("themeName");
   const iconInput = document.getElementById("themeIcon");
+  const iconUrlInput = document.getElementById("themeIconUrl");
 
   const name = input.value.trim();
+  const iconUrl = iconUrlInput.value.trim();
 
   if (!name) return alert("Écris un nom de thème.");
 
-  if (!iconInput.files[0]) {
-    return alert("Ajoute une icône / illustration pour ce thème.");
+  if (!iconInput.files[0] && !iconUrl) {
+    return alert("Ajoute une icône / illustration pour ce thème, soit par fichier soit par URL.");
   }
 
   const themes = await getAll("themes");
@@ -764,6 +1248,8 @@ async function addTheme() {
 
   if (iconInput.files[0]) {
     icon = await fileToDataURL(iconInput.files[0]);
+  } else {
+    icon = iconUrl;
   }
 
   await put("themes", {
@@ -775,6 +1261,7 @@ async function addTheme() {
 
   input.value = "";
   iconInput.value = "";
+  iconUrlInput.value = "";
 
   renderAll();
 }
@@ -789,7 +1276,7 @@ async function addSticker() {
     .filter(Boolean);
   const themeId = document.getElementById("themeSelect").value;
 
-  if (!file && !url) return alert("Choisis un fichier ou colle une URL.");
+  if (!file && !url) return alert("Ajoute un sticker, soit par fichier soit par URL.");
   if (!name) return alert("Donne un nom au sticker.");
   if (!themeId) return alert("Choisis un thème.");
 
