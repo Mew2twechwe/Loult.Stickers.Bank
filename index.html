@@ -124,115 +124,103 @@ button:hover{background:#555}
   z-index:1;
 }
 
-/* Ciel astral : plusieurs tailles + couleurs d'étoiles */
 .stars-soft::before{
   content:"";
   position:absolute;
   inset:0;
   background:
-    radial-gradient(circle at 8% 28%, rgba(255,255,255,.95) 0 1px, transparent 2px),
-    radial-gradient(circle at 16% 72%, rgba(210,170,255,.85) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 25% 40%, rgba(255,210,245,.75) 0 .8px, transparent 2px),
-    radial-gradient(circle at 36% 18%, rgba(255,255,255,.9) 0 1px, transparent 2.2px),
-    radial-gradient(circle at 43% 68%, rgba(185,140,255,.8) 0 1.6px, transparent 3.2px),
-    radial-gradient(circle at 55% 34%, rgba(255,255,255,.8) 0 .8px, transparent 2px),
-    radial-gradient(circle at 66% 76%, rgba(255,190,235,.7) 0 1.2px, transparent 2.7px),
-    radial-gradient(circle at 78% 22%, rgba(210,170,255,.85) 0 1.3px, transparent 3px),
-    radial-gradient(circle at 89% 62%, rgba(255,255,255,.9) 0 1px, transparent 2px),
-    radial-gradient(circle at 96% 38%, rgba(190,150,255,.7) 0 .8px, transparent 2px);
-  opacity:.85;
-  filter:drop-shadow(0 0 3px rgba(255,255,255,.45));
-  animation:twinkleStars 3.2s ease-in-out infinite alternate;
+    radial-gradient(circle at 8% 15%, #fff 0 1px, transparent 3px),
+    radial-gradient(circle at 18% 65%, #d8b4ff 0 2px, transparent 4px),
+    radial-gradient(circle at 28% 35%, #fff 0 1.5px, transparent 3px),
+    radial-gradient(circle at 40% 80%, #ffd6ff 0 1px, transparent 3px),
+    radial-gradient(circle at 52% 22%, #fff 0 2px, transparent 4px),
+    radial-gradient(circle at 64% 60%, #d8b4ff 0 1.5px, transparent 3px),
+    radial-gradient(circle at 78% 30%, #fff 0 1px, transparent 3px),
+    radial-gradient(circle at 90% 75%, #ffd6ff 0 2px, transparent 4px);
+  animation:twinkle 4s ease-in-out infinite alternate;
+  opacity:.9;
 }
 
-/* Deuxième couche : petites étoiles plus fines qui dérivent doucement */
-.stars-soft::after{
-  content:"";
-  position:absolute;
-  inset:-20px 0 0 0;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,.55) 0 .7px, transparent 1.5px),
-    radial-gradient(circle, rgba(170,110,255,.45) 0 .7px, transparent 1.5px);
-  background-size:95px 58px, 145px 76px;
-  background-position:12px 10px, 42px 25px;
-  opacity:.55;
-  animation:softStarFall 10s linear infinite;
-}
-
-/* Météorites visibles, elles traversent tout le cadre */
 .shooting-star{
   position:absolute;
-  width:210px;
-  height:4px;
-  left:-280px;
-  top:18%;
+  width:55px;
+  height:3px;
   border-radius:999px;
   background:linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(180,120,255,.25) 20%,
-    rgba(255,255,255,.98) 70%,
-    rgba(255,255,255,.9) 82%,
-    transparent 100%
+    rgba(255,255,255,0),
+    rgba(255,255,255,.95),
+    rgba(180,120,255,.95)
   );
   box-shadow:
-    0 0 8px rgba(255,255,255,.9),
-    0 0 18px rgba(190,120,255,.75),
-    0 0 32px rgba(120,70,255,.45);
+    0 0 5px white,
+    0 0 15px #b76cff;
   opacity:0;
   z-index:4;
-  transform:rotate(-24deg);
-  animation:meteorAcross 3s ease-in-out infinite;
-}
-
-.shooting-star::after{
-  content:"";
-  position:absolute;
-  right:8px;
-  top:50%;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:white;
-  transform:translateY(-50%);
-  box-shadow:
-    0 0 10px white,
-    0 0 20px rgba(205,160,255,.9);
+  animation:meteorA 9s ease-in-out infinite;
 }
 
 .shooting-star.s2{
-  top:68%;
-  animation-delay:1.5s;
+  animation:meteorB 11s ease-in-out infinite;
+  animation-delay:4s;
 }
 
 .shooting-star.s3{
-  display:none;
+  display:block;
+  animation:meteorC 13s ease-in-out infinite;
+  animation-delay:2s;
 }
 
-@keyframes softStarFall{
-  from{ transform:translateY(-30px); }
-  to{ transform:translateY(70px); }
+@keyframes twinkle{
+  from{opacity:.45;}
+  to{opacity:1;}
 }
 
-@keyframes twinkleStars{
-  from{ opacity:.55; filter:drop-shadow(0 0 2px rgba(255,255,255,.35)); }
-  to{ opacity:.95; filter:drop-shadow(0 0 5px rgba(210,170,255,.65)); }
-}
-
-@keyframes meteorAcross{
-  0%{
-    transform:translate(-260px,-65px) rotate(-24deg);
+@keyframes meteorA{
+  0%,20%{
     opacity:0;
+    transform:translate(-150px,-80px) rotate(-30deg);
   }
-  8%{ opacity:1; }
-  28%{ opacity:1; }
-  52%{
-    transform:translate(980px,260px) rotate(-24deg);
-    opacity:0;
+  25%{opacity:.9;}
+  70%{
+    opacity:.9;
+    transform:translate(900px,240px) rotate(-30deg);
   }
   100%{
-    transform:translate(980px,260px) rotate(-24deg);
     opacity:0;
+    transform:translate(1000px,280px) rotate(-30deg);
+  }
+}
+
+@keyframes meteorB{
+  0%,15%{
+    opacity:0;
+    transform:translate(-120px,120px) rotate(-15deg);
+  }
+  25%{opacity:.8;}
+  75%{
+    opacity:.8;
+    transform:translate(950px,-120px) rotate(-15deg);
+  }
+  100%{
+    opacity:0;
+    transform:translate(1050px,-180px) rotate(-15deg);
+  }
+}
+
+@keyframes meteorC{
+  0%,25%{
+    opacity:0;
+    transform:translate(700px,-120px) rotate(145deg);
+  }
+  35%{opacity:.7;}
+  75%{
+    opacity:.7;
+    transform:translate(-200px,260px) rotate(145deg);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-300px,340px) rotate(145deg);
   }
 }
 
@@ -424,7 +412,7 @@ flex-wrap:wrap;
 
   <div class="section">
     <h2>Derniers utilisés 🕒</h2>
-    <div class="recent-note">Clique sur “Utiliser” ou sur l’image d’un sticker pour l’ajouter ici.</div>
+    <div class="recent-note">Clique sur "Utiliser" ou sur l'image d'un sticker pour l'ajouter ici.</div>
     <div id="recentGallery" class="gallery"></div>
   </div>
 
@@ -999,8 +987,108 @@ async function prepareLoultPost(id) {
 
 async function useSticker(id) {
   recordRecentSticker(id);
+  renderAll();
+}
+
+async function toggleFavorite(id) {
   const stickers = await getAll("stickers");
-  renderRecents(stickers);
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  sticker.favorite = !sticker.favorite;
+  await put("stickers", sticker);
+  renderAll();
+}
+
+async function renameSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  const newName = prompt("Nouveau nom :", sticker.name);
+  if (!newName) return;
+
+  sticker.name = newName;
+  await put("stickers", sticker);
+  renderAll();
+}
+
+async function moveSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  const themes = await getAll("themes");
+  const options = sortThemes([...themes]).map(t => t.name).join(", ");
+  const newThemeName = prompt(`Thèmes disponibles:\n${options}\n\nNouveau thème :`, "");
+  if (!newThemeName) return;
+
+  const newTheme = themes.find(t => t.name === newThemeName);
+  if (!newTheme) return alert("Thème non trouvé.");
+
+  sticker.themeId = newTheme.id;
+  await put("stickers", sticker);
+  renderAll();
+}
+
+async function deleteSticker(id) {
+  if (!confirm("Supprimer ce sticker ?")) return;
+  await del("stickers", id);
+  renderAll();
+}
+
+async function changeThemeIcon(id) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const icon = await fileToDataURL(file);
+    const themes = await getAll("themes");
+    const theme = themes.find(t => t.id === id);
+
+    if (theme) {
+      theme.icon = icon;
+      await put("themes", theme);
+      renderAll();
+    }
+  };
+
+  input.click();
+}
+
+async function renameTheme(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+  if (!theme) return;
+
+  const newName = prompt("Nouveau nom :", theme.name);
+  if (!newName) return;
+
+  if ((await getAll("themes")).some(t => t.name.toLowerCase() === newName.toLowerCase())) {
+    return alert("Ce nom existe déjà.");
+  }
+
+  theme.name = newName;
+  await put("themes", theme);
+  renderAll();
+}
+
+async function deleteTheme(id) {
+  if (!confirm("Supprimer ce thème et ses stickers ?")) return;
+
+  const stickers = await getAll("stickers");
+  const themeStickers = stickers.filter(s => s.themeId === id);
+
+  for (const sticker of themeStickers) {
+    await del("stickers", sticker.id);
+  }
+
+  await del("themes", id);
+  renderAll();
 }
 
 async function toggleThemePin(id) {
@@ -1013,169 +1101,27 @@ async function toggleThemePin(id) {
   renderAll();
 }
 
-async function toggleFavorite(id) {
-  const stickers = await getAll("stickers");
-  const sticker = stickers.find(s => s.id === id);
-
-  if (!sticker) return;
-
-  sticker.favorite = !sticker.favorite;
-  await put("stickers", sticker);
-
-  renderAll();
-
-  if (!document.getElementById("stickersView").classList.contains("hidden")) {
-    openTheme(sticker.themeId);
-  }
-}
-
-async function renameTheme(id) {
-  const themes = await getAll("themes");
-  const theme = themes.find(t => t.id === id);
-
-  const newName = prompt("Nouveau nom du thème :", theme.name);
-  if (!newName) return;
-
-  theme.name = newName.trim();
-  await put("themes", theme);
-  renderAll();
-}
-
-async function renameSticker(id) {
-  const stickers = await getAll("stickers");
-  const sticker = stickers.find(s => s.id === id);
-
-  const newName = prompt("Nouveau nom du sticker :", sticker.name);
-  if (!newName) return;
-
-  sticker.name = newName.trim();
-  await put("stickers", sticker);
-  renderAll();
-
-  if (!document.getElementById("stickersView").classList.contains("hidden")) {
-    openTheme(sticker.themeId);
-  }
-}
-
-
-async function moveSticker(id) {
-  const stickers = await getAll("stickers");
-  const themes = await getAll("themes");
-
-  const sticker = stickers.find(s => s.id === id);
-  if (!sticker) return;
-
-  const sortedThemes = sortThemes([...themes]);
-  const currentTheme = sortedThemes.find(t => t.id === sticker.themeId);
-
-  const choices = sortedThemes
-    .map((t, index) => `${index + 1}. ${t.name}`)
-    .join("\n");
-
-  const answer = prompt(
-    `Déplacer "${sticker.name}" vers quel thème ?\n\n${choices}`,
-    currentTheme ? currentTheme.name : ""
-  );
-
-  if (!answer) return;
-
-  let selectedTheme = sortedThemes.find(t =>
-    t.name.toLowerCase() === answer.trim().toLowerCase()
-  );
-
-  const number = parseInt(answer.trim(), 10);
-
-  if (!selectedTheme && !isNaN(number)) {
-    selectedTheme = sortedThemes[number - 1];
-  }
-
-  if (!selectedTheme) {
-    alert("Thème introuvable.");
-    return;
-  }
-
-  sticker.themeId = selectedTheme.id;
-
-  await put("stickers", sticker);
-
-  renderAll();
-
-  if (!document.getElementById("stickersView").classList.contains("hidden")) {
-    openTheme(selectedTheme.id);
-  }
-}
-
-async function deleteSticker(id) {
-  if (!confirm("Supprimer ce sticker ?")) return;
-
-  const stickers = await getAll("stickers");
-  const sticker = stickers.find(s => s.id === id);
-
-  await del("stickers", id);
-  renderAll();
-
-  if (sticker && !document.getElementById("stickersView").classList.contains("hidden")) {
-    openTheme(sticker.themeId);
-  }
-}
-
-
-async function changeThemeIcon(id) {
-  const themes = await getAll("themes");
-  const theme = themes.find(t => t.id === id);
-
-  if (!theme) return;
-
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-
-  input.onchange = async () => {
-    const file = input.files[0];
-    if (!file) return;
-
-    theme.icon = await fileToDataURL(file);
-
-    await put("themes", theme);
-    renderAll();
-  };
-
-  input.click();
-}
-
-async function deleteTheme(id) {
-  const stickers = await getAll("stickers");
-
-  if (stickers.some(s => s.themeId === id)) {
-    return alert("Supprime d'abord les stickers de ce thème.");
-  }
-
-  if (!confirm("Supprimer ce thème ?")) return;
-
-  await del("themes", id);
-  renderAll();
-}
-
 document.getElementById("addThemeBtn").onclick = addTheme;
 document.getElementById("addStickerBtn").onclick = addSticker;
+document.getElementById("searchBtn").onclick = () => renderAll();
+document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
 
 document.getElementById("goThemesBtn").onclick = () => {
   document.getElementById("homePage").classList.add("hidden");
   document.getElementById("themesPage").classList.remove("hidden");
+  document.getElementById("stickersView").classList.add("hidden");
 };
 
 document.getElementById("backHomeBtn").onclick = () => {
-  document.getElementById("themesPage").classList.add("hidden");
   document.getElementById("homePage").classList.remove("hidden");
+  document.getElementById("themesPage").classList.add("hidden");
+  document.getElementById("stickersView").classList.add("hidden");
 };
 
 document.getElementById("backThemesBtn").onclick = () => {
   document.getElementById("stickersView").classList.add("hidden");
 };
 
-document.getElementById("searchInput").oninput = renderAll;
-document.getElementById("searchBtn").onclick = renderAll;
 </script>
-
 </body>
 </html>
