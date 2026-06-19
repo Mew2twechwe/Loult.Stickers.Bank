@@ -201,6 +201,49 @@ button:hover{background:#555}
   margin-bottom:12px;
 }
 
+.tagline{
+  color:#9f8fb5;
+  font-size:12px;
+  margin:6px 0 8px 0;
+}
+.tags-display{
+  color:#b899ff;
+  font-size:12px;
+  margin:6px 0;
+  line-height:1.3;
+}
+.preview-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.82);
+  z-index:9999;
+}
+.preview-box{
+  max-width:90vw;
+  max-height:90vh;
+  background:#111;
+  border:1px solid rgba(160,80,255,.45);
+  border-radius:18px;
+  padding:18px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(130,80,255,.35);
+}
+.preview-box img{
+  max-width:80vw;
+  max-height:70vh;
+  object-fit:contain;
+}
+.preview-title{
+  margin-top:10px;
+  font-weight:bold;
+}
+.preview-actions{
+  margin-top:12px;
+}
+
 </style>
 </head>
 
@@ -245,6 +288,7 @@ flex-wrap:wrap;
       <input id="stickerFile" type="file" accept="image/*">
       <input id="stickerUrl" placeholder="Ou URL du sticker">
       <input id="stickerName" placeholder="Nom du sticker">
+      <input id="stickerTags" placeholder="Tags : rire, colère, risitas...">
       <select id="themeSelect"></select>
       <button id="addStickerBtn">Ajouter le sticker</button>
     </div>
@@ -292,6 +336,17 @@ flex-wrap:wrap;
     <div id="gallery" class="gallery"></div>
   </div>
 
+</div>
+
+<div id="previewModal" class="preview-modal" onclick="closePreview(event)">
+  <div class="preview-box">
+    <img id="previewImage" src="" alt="aperçu sticker">
+    <div id="previewTitle" class="preview-title"></div>
+    <div id="previewTags" class="tags-display"></div>
+    <div class="preview-actions">
+      <button onclick="closePreview()">Fermer</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -413,6 +468,10 @@ async function addSticker() {
   const file = document.getElementById("stickerFile").files[0];
   const url = document.getElementById("stickerUrl").value.trim();
   const name = document.getElementById("stickerName").value.trim();
+  const tags = document.getElementById("stickerTags").value
+    .split(",")
+    .map(tag => tag.trim())
+    .filter(Boolean);
   const themeId = document.getElementById("themeSelect").value;
 
   if (!file && !url) return alert("Choisis un fichier ou colle une URL.");
@@ -423,7 +482,8 @@ async function addSticker() {
     id: crypto.randomUUID(),
     name,
     themeId,
-    favorite: false
+    favorite: false,
+    tags
   };
 
   if (file) {
@@ -439,6 +499,7 @@ async function addSticker() {
   document.getElementById("stickerFile").value = "";
   document.getElementById("stickerUrl").value = "";
   document.getElementById("stickerName").value = "";
+  document.getElementById("stickerTags").value = "";
 
   renderAll();
 }
@@ -654,28 +715,47 @@ function renderStickers(stickers, container) {
   const search = document.getElementById("searchInput").value.toLowerCase();
 
   stickers
-    .filter(s => s.name.toLowerCase().includes(search))
+    .filter(s => {
+      const tagsText = (s.tags || []).join(" ").toLowerCase();
+      return s.name.toLowerCase().includes(search) || tagsText.includes(search);
+    })
     .sort((a,b) => a.name.localeCompare(b.name, "fr"))
     .forEach(sticker => {
-      const url = sticker.type === "url"
-        ? sticker.url
-        : URL.createObjectURL(sticker.file);
+      const url = getStickerDisplayUrl(sticker);
 
       const card = document.createElement("div");
       card.className = "card";
 
       const img = document.createElement("img");
       img.src = url;
-      img.title = "Cliquer pour marquer comme utilisé";
-      img.style.cursor = "pointer";
-      img.onclick = () => useSticker(sticker.id);
+      img.title = "Cliquer pour agrandir";
+      img.style.cursor = "zoom-in";
+      img.onclick = () => openPreview(sticker.id);
 
       const title = document.createElement("div");
       title.innerHTML = `<strong>${sticker.name}</strong>`;
 
+      const tags = document.createElement("div");
+      tags.className = "tags-display";
+      tags.textContent = sticker.tags && sticker.tags.length
+        ? sticker.tags.map(tag => "#" + tag).join(" ")
+        : "";
+
       const useBtn = document.createElement("button");
       useBtn.textContent = "Utiliser";
       useBtn.onclick = () => useSticker(sticker.id);
+
+      const previewBtn = document.createElement("button");
+      previewBtn.textContent = "Aperçu";
+      previewBtn.onclick = () => openPreview(sticker.id);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.textContent = "Copier URL";
+      copyBtn.onclick = () => copyStickerUrl(sticker.id);
+
+      const postBtn = document.createElement("button");
+      postBtn.textContent = "Poster";
+      postBtn.onclick = () => prepareLoultPost(sticker.id);
 
       const favBtn = document.createElement("button");
       favBtn.textContent = sticker.favorite ? "⭐" : "☆";
@@ -695,7 +775,11 @@ function renderStickers(stickers, container) {
 
       card.appendChild(img);
       card.appendChild(title);
+      card.appendChild(tags);
       card.appendChild(useBtn);
+      card.appendChild(previewBtn);
+      card.appendChild(copyBtn);
+      card.appendChild(postBtn);
       card.appendChild(favBtn);
       card.appendChild(renameBtn);
       card.appendChild(moveBtn);
@@ -703,6 +787,62 @@ function renderStickers(stickers, container) {
 
       container.appendChild(card);
     });
+}
+
+function getStickerDisplayUrl(sticker) {
+  return sticker.type === "url"
+    ? sticker.url
+    : URL.createObjectURL(sticker.file);
+}
+
+async function openPreview(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  document.getElementById("previewImage").src = getStickerDisplayUrl(sticker);
+  document.getElementById("previewTitle").textContent = sticker.name;
+  document.getElementById("previewTags").textContent = sticker.tags && sticker.tags.length
+    ? sticker.tags.map(tag => "#" + tag).join(" ")
+    : "";
+
+  document.getElementById("previewModal").style.display = "flex";
+}
+
+function closePreview(event) {
+  if (event && event.target.id !== "previewModal") return;
+  document.getElementById("previewModal").style.display = "none";
+}
+
+async function copyStickerUrl(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  if (sticker.type !== "url") {
+    alert("Ce sticker vient d'un fichier local. Pour Loult, ajoute-le plutôt via une URL publique.");
+    return;
+  }
+
+  await navigator.clipboard.writeText(sticker.url);
+  alert("URL copiée !");
+}
+
+async function prepareLoultPost(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  recordRecentSticker(id);
+
+  if (sticker.type === "url") {
+    await navigator.clipboard.writeText(sticker.url);
+    alert("Préparé pour Loult : URL copiée. Plus tard, ce bouton pourra poster directement dans le chat.");
+  } else {
+    alert("Sticker marqué comme utilisé. Pour poster dans Loult, il faudra une URL publique ou une intégration serveur.");
+  }
+
+  renderAll();
 }
 
 async function useSticker(id) {
