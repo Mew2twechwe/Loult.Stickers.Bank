@@ -129,98 +129,98 @@ button:hover{background:#555}
   position:absolute;
   inset:0;
   background:
-    radial-gradient(circle at 8% 15%, #fff 0 1px, transparent 3px),
-    radial-gradient(circle at 18% 65%, #d8b4ff 0 2px, transparent 4px),
-    radial-gradient(circle at 28% 35%, #fff 0 1.5px, transparent 3px),
-    radial-gradient(circle at 40% 80%, #ffd6ff 0 1px, transparent 3px),
-    radial-gradient(circle at 52% 22%, #fff 0 2px, transparent 4px),
-    radial-gradient(circle at 64% 60%, #d8b4ff 0 1.5px, transparent 3px),
-    radial-gradient(circle at 78% 30%, #fff 0 1px, transparent 3px),
-    radial-gradient(circle at 90% 75%, #ffd6ff 0 2px, transparent 4px);
-  animation:twinkle 4s ease-in-out infinite alternate;
-  opacity:.9;
+    radial-gradient(circle at 7% 22%, rgba(255,255,255,.75) 0 .8px, transparent 2px),
+    radial-gradient(circle at 16% 70%, rgba(210,180,255,.65) 0 1.2px, transparent 3px),
+    radial-gradient(circle at 29% 38%, rgba(255,255,255,.55) 0 .7px, transparent 2px),
+    radial-gradient(circle at 42% 78%, rgba(255,210,255,.55) 0 1px, transparent 3px),
+    radial-gradient(circle at 54% 24%, rgba(255,255,255,.7) 0 1.3px, transparent 3px),
+    radial-gradient(circle at 67% 62%, rgba(180,140,255,.55) 0 .9px, transparent 2.5px),
+    radial-gradient(circle at 80% 32%, rgba(255,255,255,.6) 0 .8px, transparent 2px),
+    radial-gradient(circle at 91% 72%, rgba(255,190,255,.55) 0 1.1px, transparent 3px);
+  animation:deepStars 7s ease-in-out infinite alternate;
+  opacity:.8;
 }
 
 .shooting-star{
   position:absolute;
-  width:55px;
-  height:3px;
+  width:50px;
+  height:2px;
   border-radius:999px;
   background:linear-gradient(
     90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,.95),
-    rgba(180,120,255,.95)
+    transparent,
+    rgba(255,255,255,.85),
+    rgba(190,140,255,.65),
+    transparent
   );
   box-shadow:
-    0 0 5px white,
-    0 0 15px #b76cff;
+    0 0 4px rgba(255,255,255,.7),
+    0 0 9px rgba(170,90,255,.45);
   opacity:0;
   z-index:4;
-  animation:meteorA 9s ease-in-out infinite;
+  animation:starLineA 8s ease-in-out infinite;
 }
 
 .shooting-star.s2{
-  animation:meteorB 11s ease-in-out infinite;
-  animation-delay:4s;
+  animation:starLineB 10s ease-in-out infinite;
+  animation-delay:3.5s;
 }
 
 .shooting-star.s3{
-  display:block;
-  animation:meteorC 13s ease-in-out infinite;
-  animation-delay:2s;
+  display:none;
 }
 
-@keyframes twinkle{
-  from{opacity:.45;}
-  to{opacity:1;}
-}
-
-@keyframes meteorA{
-  0%,20%{
-    opacity:0;
-    transform:translate(-150px,-80px) rotate(-30deg);
+@keyframes deepStars{
+  0%{
+    opacity:.45;
+    transform:scale(1) translateY(0);
+    filter:blur(0px);
   }
-  25%{opacity:.9;}
-  70%{
+  50%{
     opacity:.9;
-    transform:translate(900px,240px) rotate(-30deg);
+    transform:scale(1.03) translateY(2px);
+    filter:blur(.2px);
   }
   100%{
-    opacity:0;
-    transform:translate(1000px,280px) rotate(-30deg);
+    opacity:.6;
+    transform:scale(1.06) translateY(-2px);
+    filter:blur(.4px);
   }
 }
 
-@keyframes meteorB{
-  0%,15%{
+@keyframes starLineA{
+  0%,55%{
     opacity:0;
-    transform:translate(-120px,120px) rotate(-15deg);
+    transform:translate(40px,20px) rotate(-18deg);
   }
-  25%{opacity:.8;}
+  60%{
+    opacity:.75;
+  }
   75%{
-    opacity:.8;
-    transform:translate(950px,-120px) rotate(-15deg);
+    opacity:.75;
+    transform:translate(360px,85px) rotate(-18deg);
   }
-  100%{
+  88%,100%{
     opacity:0;
-    transform:translate(1050px,-180px) rotate(-15deg);
+    transform:translate(440px,105px) rotate(-18deg);
   }
 }
 
-@keyframes meteorC{
-  0%,25%{
+@keyframes starLineB{
+  0%,45%{
     opacity:0;
-    transform:translate(700px,-120px) rotate(145deg);
+    transform:translate(470px,70px) rotate(160deg);
   }
-  35%{opacity:.7;}
-  75%{
-    opacity:.7;
-    transform:translate(-200px,260px) rotate(145deg);
+  52%{
+    opacity:.65;
   }
-  100%{
+  68%{
+    opacity:.65;
+    transform:translate(230px,25px) rotate(160deg);
+  }
+  82%,100%{
     opacity:0;
-    transform:translate(-300px,340px) rotate(145deg);
+    transform:translate(170px,12px) rotate(160deg);
   }
 }
 
@@ -1000,13 +1000,74 @@ async function toggleFavorite(id) {
   renderAll();
 }
 
+async function toggleThemePin(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+  if (!theme) return;
+
+  theme.pinned = !theme.pinned;
+  await put("themes", theme);
+  renderAll();
+}
+
+async function changeThemeIcon(id) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const themes = await getAll("themes");
+    const theme = themes.find(t => t.id === id);
+    if (!theme) return;
+
+    theme.icon = await fileToDataURL(file);
+    await put("themes", theme);
+    renderAll();
+  };
+  input.click();
+}
+
+async function renameTheme(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+  if (!theme) return;
+
+  const newName = prompt("Nouveau nom du thème :", theme.name);
+  if (newName === null || !newName.trim()) return;
+
+  if (themes.some(t => t.id !== id && t.name.toLowerCase() === newName.toLowerCase())) {
+    return alert("Ce nom existe déjà.");
+  }
+
+  theme.name = newName;
+  await put("themes", theme);
+  renderAll();
+}
+
+async function deleteTheme(id) {
+  if (!confirm("Supprimer ce thème et tous ses stickers ?")) return;
+
+  const stickers = await getAll("stickers");
+
+  for (const sticker of stickers) {
+    if (sticker.themeId === id) {
+      await del("stickers", sticker.id);
+    }
+  }
+
+  await del("themes", id);
+  renderAll();
+}
+
 async function renameSticker(id) {
   const stickers = await getAll("stickers");
   const sticker = stickers.find(s => s.id === id);
   if (!sticker) return;
 
-  const newName = prompt("Nouveau nom :", sticker.name);
-  if (!newName) return;
+  const newName = prompt("Nouveau nom du sticker :", sticker.name);
+  if (newName === null || !newName.trim()) return;
 
   sticker.name = newName;
   await put("stickers", sticker);
@@ -1019,14 +1080,15 @@ async function moveSticker(id) {
   if (!sticker) return;
 
   const themes = await getAll("themes");
-  const options = sortThemes([...themes]).map(t => t.name).join(", ");
-  const newThemeName = prompt(`Thèmes disponibles:\n${options}\n\nNouveau thème :`, "");
-  if (!newThemeName) return;
+  const themeOptions = sortThemes([...themes]).map(t => `${t.id}:${t.name}`).join("\n");
+  const selected = prompt("Sélectionne le thème :\n" + themeOptions);
+  
+  if (!selected) return;
 
-  const newTheme = themes.find(t => t.name === newThemeName);
-  if (!newTheme) return alert("Thème non trouvé.");
+  const themeId = selected.split(":")[0];
+  if (!themes.some(t => t.id === themeId)) return;
 
-  sticker.themeId = newTheme.id;
+  sticker.themeId = themeId;
   await put("stickers", sticker);
   renderAll();
 }
@@ -1037,91 +1099,23 @@ async function deleteSticker(id) {
   renderAll();
 }
 
-async function changeThemeIcon(id) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-
-  input.onchange = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const icon = await fileToDataURL(file);
-    const themes = await getAll("themes");
-    const theme = themes.find(t => t.id === id);
-
-    if (theme) {
-      theme.icon = icon;
-      await put("themes", theme);
-      renderAll();
-    }
-  };
-
-  input.click();
-}
-
-async function renameTheme(id) {
-  const themes = await getAll("themes");
-  const theme = themes.find(t => t.id === id);
-  if (!theme) return;
-
-  const newName = prompt("Nouveau nom :", theme.name);
-  if (!newName) return;
-
-  if ((await getAll("themes")).some(t => t.name.toLowerCase() === newName.toLowerCase())) {
-    return alert("Ce nom existe déjà.");
-  }
-
-  theme.name = newName;
-  await put("themes", theme);
-  renderAll();
-}
-
-async function deleteTheme(id) {
-  if (!confirm("Supprimer ce thème et ses stickers ?")) return;
-
-  const stickers = await getAll("stickers");
-  const themeStickers = stickers.filter(s => s.themeId === id);
-
-  for (const sticker of themeStickers) {
-    await del("stickers", sticker.id);
-  }
-
-  await del("themes", id);
-  renderAll();
-}
-
-async function toggleThemePin(id) {
-  const themes = await getAll("themes");
-  const theme = themes.find(t => t.id === id);
-  if (!theme) return;
-
-  theme.pinned = !theme.pinned;
-  await put("themes", theme);
-  renderAll();
-}
-
 document.getElementById("addThemeBtn").onclick = addTheme;
 document.getElementById("addStickerBtn").onclick = addSticker;
-document.getElementById("searchBtn").onclick = () => renderAll();
-document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
-
+document.getElementById("searchBtn").onclick = () => renderStickers(stickers, document.getElementById("gallery"));
 document.getElementById("goThemesBtn").onclick = () => {
   document.getElementById("homePage").classList.add("hidden");
   document.getElementById("themesPage").classList.remove("hidden");
   document.getElementById("stickersView").classList.add("hidden");
 };
-
 document.getElementById("backHomeBtn").onclick = () => {
   document.getElementById("homePage").classList.remove("hidden");
   document.getElementById("themesPage").classList.add("hidden");
-  document.getElementById("stickersView").classList.add("hidden");
 };
-
 document.getElementById("backThemesBtn").onclick = () => {
   document.getElementById("stickersView").classList.add("hidden");
 };
-
+document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
 </script>
+
 </body>
 </html>
