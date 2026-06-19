@@ -80,200 +80,116 @@ button:hover{background:#555}
   box-shadow:0 0 8px #7f5cff;
 }
 
-/* Replaced stats/astral/star CSS per request */
+
+
 .stats-astral{
   position:relative;
   overflow:hidden;
   text-align:center;
   margin:0 auto 22px auto;
-  max-width:700px;
-  min-height:auto;
-  padding:14px 22px;
+  padding:10px 16px;
+  max-width:640px;
   border-radius:18px;
+  font-weight:bold;
+  letter-spacing:.8px;
+  color:#fff;
   background:
-    radial-gradient(circle at 15% 25%, rgba(120,0,80,.45), transparent 28%),
-    radial-gradient(circle at 70% 40%, rgba(70,0,130,.45), transparent 30%),
-    radial-gradient(circle at 45% 90%, rgba(10,10,35,.9), transparent 35%),
-    linear-gradient(135deg,#050506,#090012 45%,#050506);
+    radial-gradient(circle at 18% 35%, rgba(70,0,95,.30), transparent 30%),
+    radial-gradient(circle at 78% 45%, rgba(150,0,80,.20), transparent 28%),
+    linear-gradient(135deg,#07070a,#120018 55%,#07070a);
   border:1px solid rgba(120,80,180,.18);
-  backdrop-filter: blur(2px);
   box-shadow:
-    inset 0 0 18px rgba(80,0,120,.25),
-    0 0 6px rgba(80,0,120,.15);
-}
-
-.stats-astral::before{
-  content:"";
-  position:absolute;
-  inset:-35px;
-  background:
-    radial-gradient(circle at 15% 45%, rgba(0,0,0,.9) 0 8%, transparent 16%),
-    radial-gradient(circle at 85% 30%, rgba(0,0,0,.85) 0 7%, transparent 15%),
-    radial-gradient(circle at 50% 115%, rgba(0,0,0,.95) 0 16%, transparent 28%);
-  filter:blur(18px);
-  opacity:.9;
-  animation:symbioteMove 7s ease-in-out infinite alternate;
-  z-index:1;
-}
-
-.stats-astral::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(circle at 10% 20%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 25% 65%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 40% 35%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 55% 75%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 70% 25%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 85% 60%, #fff 0 1px, transparent 2px),
-    radial-gradient(circle at 95% 40%, #fff 0 1px, transparent 2px);
-  background-size:140px 90px;
-  opacity:.9;
-  animation:starsDrift 10s linear infinite;
-  z-index:2;
-}
-
-.stars,
-.stars2,
-.stars3{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  pointer-events:none;
-  z-index:3;
-}
-
-.stars::before,
-.stars2::before,
-.stars3::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:
-    radial-gradient(circle, white 0 1px, transparent 2px);
-  background-size:160px 120px;
-  filter:
-    drop-shadow(0 0 4px white)
-    drop-shadow(0 0 7px rgba(180,90,255,.9));
-  animation:starFieldFall 12s linear infinite;
-}
-
-.stars2::before{
-  opacity:.65;
-  animation-duration:8s;
-  animation-delay:-3s;
-}
-
-.stars3::before{
-  opacity:.35;
-  animation-duration:16s;
-  animation-delay:-6s;
-}
-
-/* Shooting stars */
-.shooting-star{
-  position:absolute;
-  width:80px;
-  height:2px;
-
-  background:linear-gradient(
-    90deg,
-    rgba(255,255,255,0),
-    rgba(255,255,255,.9)
-  );
-
-  transform:rotate(-35deg);
-
-  filter:
-    drop-shadow(0 0 4px white)
-    drop-shadow(0 0 8px #9d6cff);
-
-  opacity:.8;
-  z-index:4;
-}
-
-.shooting-star{
-  top:15%;
-  left:-120px;
-  animation:shootingStar 8s linear infinite;
-}
-
-.shooting2{
-  top:50%;
-  animation-delay:2.5s;
-}
-
-.shooting3{
-  top:75%;
-  animation-delay:5s;
-}
-
-@keyframes shootingStar{
-
-  0%{
-    transform:
-      translate(-150px,-50px)
-      rotate(-35deg);
-    opacity:0;
-  }
-
-  10%{
-    opacity:1;
-  }
-
-  40%{
-    opacity:1;
-  }
-
-  100%{
-    transform:
-      translate(900px,250px)
-      rotate(-35deg);
-    opacity:0;
-  }
+    inset 0 0 18px rgba(0,0,0,.95),
+    inset 0 0 14px rgba(110,0,170,.20),
+    0 0 6px rgba(90,0,140,.14);
+  text-shadow:
+    0 0 5px rgba(255,255,255,.85),
+    0 0 10px rgba(170,70,255,.55);
 }
 
 #stats{
   position:relative;
   z-index:10;
-  font-size:24px;
+  font-size:18px;
   font-weight:bold;
-  color:white;
-  text-shadow:
-    0 0 6px rgba(255,255,255,.9),
-    0 0 12px rgba(190,80,255,.8),
-    0 0 20px rgba(255,0,100,.45);
+  white-space:nowrap;
 }
 
-@keyframes starFieldFall{
-  from{
-    transform:translateY(-100%);
+.stars-soft{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:1;
+}
+
+.stars-soft::before{
+  content:"";
+  position:absolute;
+  inset:-35px 0 0 0;
+  background-image:
+    radial-gradient(circle at 10% 35%, rgba(255,255,255,.85) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 28% 72%, rgba(210,170,255,.65) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 46% 28%, rgba(255,255,255,.75) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 66% 66%, rgba(255,180,230,.70) 0 .8px, transparent 1.6px),
+    radial-gradient(circle at 85% 38%, rgba(190,150,255,.70) 0 .8px, transparent 1.6px);
+  background-size:100% 115px;
+  animation:softStarFall 12s linear infinite;
+  opacity:.65;
+  filter:drop-shadow(0 0 3px rgba(255,255,255,.55));
+}
+
+.shooting-star{
+  position:absolute;
+  width:70px;
+  height:2px;
+  left:-110px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.9), rgba(180,120,255,.45));
+  transform:rotate(-28deg);
+  filter:
+    drop-shadow(0 0 3px rgba(255,255,255,.75))
+    drop-shadow(0 0 6px rgba(160,80,255,.65));
+  opacity:0;
+  z-index:2;
+  animation:shootingStar 8s linear infinite;
+}
+
+.shooting-star.s2{
+  top:62%;
+  animation-delay:3.2s;
+  animation-duration:10s;
+}
+
+.shooting-star.s3{
+  display:none;
+}
+
+.shooting-star:not(.s2):not(.s3){
+  top:35%;
+}
+
+@keyframes softStarFall{
+  from{ transform:translateY(-70px); }
+  to{ transform:translateY(105px); }
+}
+
+@keyframes shootingStar{
+  0%{
+    transform:translate(-120px,-30px) rotate(-28deg);
+    opacity:0;
   }
-  to{
-    transform:translateY(100%);
+  9%{ opacity:.75; }
+  24%{ opacity:.75; }
+  38%{
+    transform:translate(760px,165px) rotate(-28deg);
+    opacity:0;
+  }
+  100%{
+    transform:translate(760px,165px) rotate(-28deg);
+    opacity:0;
   }
 }
 
-@keyframes starsDrift{
-  from{
-    background-position:0 0;
-  }
-  to{
-    background-position:140px 180px;
-  }
-}
-
-@keyframes symbioteMove{
-  from{
-    transform:scale(1) translateX(-15px);
-    opacity:.75;
-  }
-  to{
-    transform:scale(1.08) translateX(18px);
-    opacity:1;
-  }
-}
 </style>
 </head>
 
@@ -282,16 +198,11 @@ button:hover{background:#555}
 <h1>Loult Stickers Bank</h1>
 
 <div class="stats-astral">
-
-  <div class="stars"></div>
-  <div class="stars stars2"></div>
-  <div class="stars stars3"></div>
+  <div class="stars-soft"></div>
   <div class="shooting-star"></div>
-  <div class="shooting-star shooting2"></div>
-  <div class="shooting-star shooting3"></div>
-
+  <div class="shooting-star s2"></div>
+  <div class="shooting-star s3"></div>
   <div id="stats"></div>
-
 </div>
 
 <div id="homePage">
@@ -502,18 +413,12 @@ async function renderAll() {
   renderFavorites(stickers);
 }
 
-function renderStats(themes, stickers){
 
-  const favorites =
-    stickers.filter(s => s.favorite).length;
+function renderStats(themes, stickers) {
+  const favorites = stickers.filter(s => s.favorite).length;
 
-  document.getElementById("stats").innerHTML = `
-    ✦ ${themes.length} THÈMES ✦
-    &nbsp;&nbsp;&nbsp;
-    ✦ ${stickers.length} STICKERS ✦
-    &nbsp;&nbsp;&nbsp;
-    ✦ ${favorites} FAVORIS ✦
-  `;
+  document.getElementById("stats").innerHTML =
+    `✦ ${themes.length} thèmes ✧ ${stickers.length} stickers ✧ ${favorites} favs ✦`;
 }
 
 function renderThemeSelect(themes) {
@@ -535,4 +440,365 @@ function renderQuickThemes(themes) {
   container.innerHTML = "";
 
   themes
-... (truncated for brevity)
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(theme => {
+      const div = document.createElement("div");
+
+      div.style.textAlign = "center";
+      div.style.width = "72px";
+      div.style.marginRight = "4px";
+      div.style.flexShrink = "0";
+      div.style.cursor = "pointer";
+
+      div.onclick = () => {
+        document.getElementById("goThemesBtn").click();
+        setTimeout(() => openTheme(theme.id), 100);
+      };
+
+      div.innerHTML = `
+        ${theme.icon ? `<img src="${theme.icon}" style="
+          width:58px;
+          height:58px;
+          border-radius:50%;
+          object-fit:cover;
+          border:2px solid #555;
+          display:block;
+          margin:0 auto 6px;
+        ">` : ""}
+        <div style="
+          font-size:11px;
+          line-height:1;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        ">
+          ${theme.name}
+        </div>
+      `;
+
+      container.appendChild(div);
+    });
+}
+
+function renderThemes(themes, stickers) {
+  const container = document.getElementById("themes");
+  container.innerHTML = "";
+
+  themes
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(theme => {
+      const count = stickers.filter(s => s.themeId === theme.id).length;
+
+      const box = document.createElement("div");
+      box.className = "theme";
+
+      box.innerHTML = `
+        ${
+          theme.icon
+            ? `<img src="${theme.icon}"
+                 style="
+                   width:90px;
+                   height:90px;
+                   object-fit:cover;
+                   border-radius:50%;
+                   border:3px solid #555;
+                   display:block;
+                   margin:0 auto 12px;
+                   background:#1a1a1a;
+                 ">`
+            : ""
+        }
+
+        <div style="
+  font-size:18px;
+  font-weight:bold;
+  margin-top:8px;
+">
+  ${theme.name}
+</div>
+
+<div style="
+  color:#aaa;
+  font-size:13px;
+  margin-top:4px;
+">
+  ${count} sticker(s)
+</div>
+      `;
+
+      const openBtn = document.createElement("button");
+      openBtn.textContent = "Ouvrir";
+      openBtn.onclick = e => {
+        e.stopPropagation();
+        openTheme(theme.id);
+      };
+
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Renommer";
+      renameBtn.onclick = e => {
+        e.stopPropagation();
+        renameTheme(theme.id);
+      };
+
+      const iconBtn = document.createElement("button");
+      iconBtn.textContent = "Icône";
+      iconBtn.onclick = e => {
+        e.stopPropagation();
+        changeThemeIcon(theme.id);
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = e => {
+        e.stopPropagation();
+        deleteTheme(theme.id);
+      };
+
+      box.onclick = () => openTheme(theme.id);
+      box.appendChild(openBtn);
+      box.appendChild(renameBtn);
+      box.appendChild(iconBtn);
+      box.appendChild(deleteBtn);
+
+      container.appendChild(box);
+    });
+}
+
+async function openTheme(themeId) {
+  const themes = await getAll("themes");
+  const stickers = await getAll("stickers");
+
+  const theme = themes.find(t => t.id === themeId);
+  if (!theme) return;
+
+  document.getElementById("stickersView").classList.remove("hidden");
+  document.getElementById("themeTitle").textContent = theme.name;
+
+  renderStickers(
+    stickers.filter(s => s.themeId === themeId),
+    document.getElementById("gallery")
+  );
+}
+
+function renderFavorites(stickers) {
+  renderStickers(
+    stickers.filter(s => s.favorite),
+    document.getElementById("favoritesGallery")
+  );
+}
+
+function renderStickers(stickers, container) {
+  container.innerHTML = "";
+
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  stickers
+    .filter(s => s.name.toLowerCase().includes(search))
+    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+    .forEach(sticker => {
+      const url = sticker.type === "url"
+        ? sticker.url
+        : URL.createObjectURL(sticker.file);
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const img = document.createElement("img");
+      img.src = url;
+
+      const title = document.createElement("div");
+      title.innerHTML = `<strong>${sticker.name}</strong>`;
+
+      const favBtn = document.createElement("button");
+      favBtn.textContent = sticker.favorite ? "⭐" : "☆";
+      favBtn.onclick = () => toggleFavorite(sticker.id);
+
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Renommer";
+      renameBtn.onclick = () => renameSticker(sticker.id);
+
+      const moveBtn = document.createElement("button");
+      moveBtn.textContent = "Déplacer";
+      moveBtn.onclick = () => moveSticker(sticker.id);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = () => deleteSticker(sticker.id);
+
+      card.appendChild(img);
+      card.appendChild(title);
+      card.appendChild(favBtn);
+      card.appendChild(renameBtn);
+      card.appendChild(moveBtn);
+      card.appendChild(deleteBtn);
+
+      container.appendChild(card);
+    });
+}
+
+async function toggleFavorite(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+
+  if (!sticker) return;
+
+  sticker.favorite = !sticker.favorite;
+  await put("stickers", sticker);
+
+  renderAll();
+
+  if (!document.getElementById("stickersView").classList.contains("hidden")) {
+    openTheme(sticker.themeId);
+  }
+}
+
+async function renameTheme(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+
+  const newName = prompt("Nouveau nom du thème :", theme.name);
+  if (!newName) return;
+
+  theme.name = newName.trim();
+  await put("themes", theme);
+  renderAll();
+}
+
+async function renameSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+
+  const newName = prompt("Nouveau nom du sticker :", sticker.name);
+  if (!newName) return;
+
+  sticker.name = newName.trim();
+  await put("stickers", sticker);
+  renderAll();
+
+  if (!document.getElementById("stickersView").classList.contains("hidden")) {
+    openTheme(sticker.themeId);
+  }
+}
+
+
+async function moveSticker(id) {
+  const stickers = await getAll("stickers");
+  const themes = await getAll("themes");
+
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  const sortedThemes = themes.sort((a,b) => a.name.localeCompare(b.name, "fr"));
+  const currentTheme = sortedThemes.find(t => t.id === sticker.themeId);
+
+  const choices = sortedThemes
+    .map((t, index) => `${index + 1}. ${t.name}`)
+    .join("\n");
+
+  const answer = prompt(
+    `Déplacer "${sticker.name}" vers quel thème ?\n\n${choices}`,
+    currentTheme ? currentTheme.name : ""
+  );
+
+  if (!answer) return;
+
+  let selectedTheme = sortedThemes.find(t =>
+    t.name.toLowerCase() === answer.trim().toLowerCase()
+  );
+
+  const number = parseInt(answer.trim(), 10);
+
+  if (!selectedTheme && !isNaN(number)) {
+    selectedTheme = sortedThemes[number - 1];
+  }
+
+  if (!selectedTheme) {
+    alert("Thème introuvable.");
+    return;
+  }
+
+  sticker.themeId = selectedTheme.id;
+
+  await put("stickers", sticker);
+
+  renderAll();
+
+  if (!document.getElementById("stickersView").classList.contains("hidden")) {
+    openTheme(selectedTheme.id);
+  }
+}
+
+async function deleteSticker(id) {
+  if (!confirm("Supprimer ce sticker ?")) return;
+
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+
+  await del("stickers", id);
+  renderAll();
+
+  if (sticker && !document.getElementById("stickersView").classList.contains("hidden")) {
+    openTheme(sticker.themeId);
+  }
+}
+
+
+async function changeThemeIcon(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+
+  if (!theme) return;
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    theme.icon = await fileToDataURL(file);
+
+    await put("themes", theme);
+    renderAll();
+  };
+
+  input.click();
+}
+
+async function deleteTheme(id) {
+  const stickers = await getAll("stickers");
+
+  if (stickers.some(s => s.themeId === id)) {
+    return alert("Supprime d'abord les stickers de ce thème.");
+  }
+
+  if (!confirm("Supprimer ce thème ?")) return;
+
+  await del("themes", id);
+  renderAll();
+}
+
+document.getElementById("addThemeBtn").onclick = addTheme;
+document.getElementById("addStickerBtn").onclick = addSticker;
+
+document.getElementById("goThemesBtn").onclick = () => {
+  document.getElementById("homePage").classList.add("hidden");
+  document.getElementById("themesPage").classList.remove("hidden");
+};
+
+document.getElementById("backHomeBtn").onclick = () => {
+  document.getElementById("themesPage").classList.add("hidden");
+  document.getElementById("homePage").classList.remove("hidden");
+};
+
+document.getElementById("backThemesBtn").onclick = () => {
+  document.getElementById("stickersView").classList.add("hidden");
+};
+
+document.getElementById("searchInput").oninput = renderAll;
+document.getElementById("searchBtn").onclick = renderAll;
+</script>
+
+</body>
+</html>
