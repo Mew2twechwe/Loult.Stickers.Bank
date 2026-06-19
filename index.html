@@ -80,53 +80,58 @@ button:hover{background:#555}
   box-shadow:0 0 8px #7f5cff;
 }
 
-/* Added stats-astral and stars styles */
+/* Replaced stats/astral/star CSS per request */
 .stats-astral{
   position:relative;
   overflow:hidden;
-
   text-align:center;
-
-  margin:0 auto 20px auto;
-
-  max-width:800px;
-
-  padding:22px;
-
-  border-radius:20px;
-
+  margin:0 auto 22px auto;
+  max-width:850px;
+  min-height:75px;
+  padding:26px 28px;
+  border-radius:26px;
   background:
-  radial-gradient(circle at 20% 20%,
-  rgba(255,0,100,.35),
-  transparent 35%),
-
-  radial-gradient(circle at 80% 40%,
-  rgba(120,0,255,.35),
-  transparent 35%),
-
-  #080812;
-
-  border:1px solid #9d4fff;
-
+    radial-gradient(circle at 15% 25%, rgba(120,0,80,.45), transparent 28%),
+    radial-gradient(circle at 70% 40%, rgba(70,0,130,.45), transparent 30%),
+    radial-gradient(circle at 45% 90%, rgba(10,10,35,.9), transparent 35%),
+    linear-gradient(135deg,#050506,#090012 45%,#050506);
+  border:1px solid rgba(160,70,255,.35);
   box-shadow:
-  0 0 20px #7d2cff,
-  0 0 45px #ff0080;
-
-  min-height:55px;
+    inset 0 0 35px rgba(0,0,0,.95),
+    inset 0 0 22px rgba(110,0,180,.35),
+    0 0 10px rgba(90,0,140,.25);
 }
 
-#stats{
-  position:relative;
-  z-index:10;
+.stats-astral::before{
+  content:"";
+  position:absolute;
+  inset:-35px;
+  background:
+    radial-gradient(circle at 15% 45%, rgba(0,0,0,.9) 0 8%, transparent 16%),
+    radial-gradient(circle at 85% 30%, rgba(0,0,0,.85) 0 7%, transparent 15%),
+    radial-gradient(circle at 50% 115%, rgba(0,0,0,.95) 0 16%, transparent 28%);
+  filter:blur(18px);
+  opacity:.9;
+  animation:symbioteMove 7s ease-in-out infinite alternate;
+  z-index:1;
+}
 
-  font-size:24px;
-  font-weight:bold;
-
-  color:white;
-
-  text-shadow:
-  0 0 10px #ff00aa,
-  0 0 20px #7d2cff;
+.stats-astral::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 10% 20%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 25% 65%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 35%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 55% 75%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 25%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 85% 60%, #fff 0 1px, transparent 2px),
+    radial-gradient(circle at 95% 40%, #fff 0 1px, transparent 2px);
+  background-size:140px 90px;
+  opacity:.9;
+  animation:starsDrift 10s linear infinite;
+  z-index:2;
 }
 
 .stars,
@@ -136,6 +141,7 @@ button:hover{background:#555}
   inset:0;
   overflow:hidden;
   pointer-events:none;
+  z-index:3;
 }
 
 .stars::before,
@@ -143,66 +149,83 @@ button:hover{background:#555}
 .stars3::before{
   content:"";
   position:absolute;
-  top:-20%;
-  left:0;
-  width:4px;
-  height:4px;
-  border-radius:50%;
-  background:white;
-
-  box-shadow:
-    20px 10px #fff,
-    70px 45px #fff,
-    120px 20px #fff,
-    180px 70px #fff,
-    240px 35px #fff,
-    300px 90px #fff,
-    370px 25px #fff,
-    430px 60px #fff,
-    500px 15px #fff,
-    560px 80px #fff,
-    630px 40px #fff,
-    700px 95px #fff,
-    760px 25px #fff,
-    830px 65px #fff,
-    900px 35px #fff,
-    970px 85px #fff,
-    1040px 15px #fff,
-    1110px 55px #fff,
-    1180px 95px #fff,
-    1250px 40px #fff,
-    1320px 75px #fff,
-    1390px 25px #fff,
-    1460px 90px #fff,
-    1530px 50px #fff;
-    
-  animation:starRain 7s linear infinite;
-  filter:drop-shadow(0 0 5px #fff)
-         drop-shadow(0 0 9px #c77dff);
+  inset:0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,1) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(255,160,255,.9) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(170,110,255,.9) 0 1px, transparent 2px);
+  background-size:
+    42px 38px,
+    65px 55px,
+    95px 80px;
+  background-position:
+    0 0,
+    20px 12px,
+    40px 28px;
+  filter:
+    drop-shadow(0 0 4px white)
+    drop-shadow(0 0 7px rgba(180,90,255,.9));
+  animation:starFieldFall 12s linear infinite;
 }
 
 .stars2::before{
-  width:2px;
-  height:2px;
-  opacity:.75;
-  animation-duration:10s;
+  opacity:.65;
+  background-size:
+    28px 32px,
+    50px 48px,
+    80px 70px;
+  animation-duration:8s;
   animation-delay:-3s;
 }
 
 .stars3::before{
-  width:6px;
-  height:6px;
-  opacity:.45;
-  animation-duration:13s;
+  opacity:.35;
+  background-size:
+    18px 22px,
+    35px 34px,
+    60px 55px;
+  animation-duration:16s;
   animation-delay:-6s;
 }
 
-@keyframes starRain{
+#stats{
+  position:relative;
+  z-index:10;
+  font-size:24px;
+  font-weight:bold;
+  color:white;
+  text-shadow:
+    0 0 6px rgba(255,255,255,.9),
+    0 0 12px rgba(190,80,255,.8),
+    0 0 20px rgba(255,0,100,.45);
+}
+
+@keyframes starFieldFall{
   from{
-    transform:translateY(-120px);
+    transform:translateY(-100%);
   }
   to{
-    transform:translateY(260px);
+    transform:translateY(100%);
+  }
+}
+
+@keyframes starsDrift{
+  from{
+    background-position:0 0;
+  }
+  to{
+    background-position:140px 180px;
+  }
+}
+
+@keyframes symbioteMove{
+  from{
+    transform:scale(1) translateX(-15px);
+    opacity:.75;
+  }
+  to{
+    transform:scale(1.08) translateX(18px);
+    opacity:1;
   }
 }
 </style>
