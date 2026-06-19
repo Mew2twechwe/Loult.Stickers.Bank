@@ -446,6 +446,100 @@ button:hover{background:#555}
   margin-top:12px;
 }
 
+.shortcut-toolbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.shortcut-toolbar input{
+  min-width:220px;
+}
+
+.shortcuts-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:18px;
+}
+
+.shortcut-box{
+  background:
+    radial-gradient(circle at 12% 20%, rgba(130,80,255,.18), transparent 28%),
+    linear-gradient(135deg,rgba(16,16,20,.94),rgba(20,12,28,.94));
+  border:1px solid rgba(190,140,255,.22);
+  border-radius:16px;
+  padding:14px;
+  box-shadow:
+    inset 0 0 18px rgba(0,0,0,.45),
+    0 0 14px rgba(120,70,255,.12);
+}
+
+.shortcut-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.shortcut-title{
+  margin:0;
+  font-size:19px;
+}
+
+.shortcut-key{
+  font-size:12px;
+  color:#d8c6ff;
+  border:1px solid rgba(190,140,255,.35);
+  background:rgba(70,40,120,.25);
+  padding:4px 8px;
+  border-radius:999px;
+}
+
+.shortcut-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.shortcut-actions button{
+  padding:7px 9px;
+  font-size:12px;
+}
+
+.shortcut-preview{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(125px,1fr));
+  gap:12px;
+}
+
+.empty-note{
+  color:#aaa;
+  font-size:13px;
+  padding:10px;
+}
+
+.shortcut-select-row{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+
+.shortcut-select-row select{
+  max-width:160px;
+  font-size:12px;
+  padding:7px;
+}
+
+.shortcut-select-row button{
+  font-size:12px;
+  padding:7px 9px;
+}
+
 </style>
 </head>
 
@@ -509,14 +603,31 @@ flex-wrap:wrap;
   </div>
 
   <div class="section">
-    <h2>Favoris ⭐</h2>
-    <div id="favoritesGallery" class="gallery"></div>
+    <div class="shortcut-toolbar">
+      <h2 style="margin-right:auto;">Raccourcis personnels ⌨️</h2>
+      <input id="shortcutNameInput" placeholder="Nom du nouveau raccourci">
+      <button id="createShortcutBtn">Créer un raccourci</button>
+    </div>
+
+    <div class="recent-note">
+      Favoris et Derniers utilisés sont les 2 raccourcis par défaut. Les prochains pourront être reliés à ALT+1, ALT+2, ALT+3...
+    </div>
+
+    <div id="shortcutsGrid" class="shortcuts-grid"></div>
+  </div>
+
+</div>
+
+
+<div id="shortcutPage" class="hidden">
+
+  <div class="section">
+    <button id="backShortcutHomeBtn" class="big-btn">Retour accueil</button>
   </div>
 
   <div class="section">
-    <h2>Derniers utilisés 🕒</h2>
-    <div class="recent-note">Clique sur "Utiliser" ou sur l'image d'un sticker pour l'ajouter ici.</div>
-    <div id="recentGallery" class="gallery"></div>
+    <h2 id="shortcutPageTitle"></h2>
+    <div id="shortcutPageGallery" class="gallery"></div>
   </div>
 
 </div>
@@ -554,6 +665,8 @@ flex-wrap:wrap;
 <script>
 let db;
 const RECENT_KEY = "loult_recent_stickers_v1";
+const SHORTCUTS_KEY = "loult_personal_shortcuts_v1";
+let currentShortcutId = null;
 
 const request = indexedDB.open("LoultStickersDB", 5);
 
@@ -714,8 +827,7 @@ async function renderAll() {
   renderThemeSelect(themes);
   renderQuickThemes(themes);
   renderThemes(themes, stickers);
-  renderFavorites(stickers);
-  renderRecents(stickers);
+  renderShortcuts(stickers);
 }
 
 
@@ -908,24 +1020,270 @@ async function openTheme(themeId) {
   );
 }
 
-function renderFavorites(stickers) {
-  renderStickers(
-    stickers.filter(s => s.favorite),
-    document.getElementById("favoritesGallery")
-  );
+function getDefaultShortcuts() {
+  return [
+    {
+      id: "favorites",
+      name: "Favoris",
+      icon: "⭐",
+      type: "system",
+      system: "favorites",
+      locked: true
+    },
+    {
+      id: "recents",
+      name: "Derniers utilisés",
+      icon: "🕒",
+      type: "system",
+      system: "recents",
+      locked: true
+    }
+  ];
 }
 
-function renderRecents(stickers) {
+function getUserShortcuts() {
+  return JSON.parse(localStorage.getItem(SHORTCUTS_KEY) || "[]");
+}
+
+function saveUserShortcuts(shortcuts) {
+  localStorage.setItem(SHORTCUTS_KEY, JSON.stringify(shortcuts));
+}
+
+function getAllShortcuts() {
+  return [...getDefaultShortcuts(), ...getUserShortcuts()];
+}
+
+function getRecentStickers(stickers) {
   const ids = getRecentIds();
-  const recentStickers = ids
+
+  return ids
     .map(id => stickers.find(s => s.id === id))
     .filter(Boolean);
+}
+
+function getShortcutStickers(shortcut, stickers) {
+  if (shortcut.system === "favorites") {
+    return stickers.filter(s => s.favorite);
+  }
+
+  if (shortcut.system === "recents") {
+    return getRecentStickers(stickers);
+  }
+
+  const ids = shortcut.stickerIds || [];
+
+  return ids
+    .map(id => stickers.find(s => s.id === id))
+    .filter(Boolean);
+}
+
+function renderShortcuts(stickers) {
+  const container = document.getElementById("shortcutsGrid");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  getAllShortcuts().forEach((shortcut, index) => {
+    const shortcutStickers = getShortcutStickers(shortcut, stickers);
+
+    const box = document.createElement("div");
+    box.className = "shortcut-box";
+
+    const head = document.createElement("div");
+    head.className = "shortcut-head";
+
+    const title = document.createElement("h3");
+    title.className = "shortcut-title";
+    title.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name} (${shortcutStickers.length})`;
+
+    const key = document.createElement("span");
+    key.className = "shortcut-key";
+    key.textContent = `ALT + ${index + 1}`;
+
+    head.appendChild(title);
+    head.appendChild(key);
+
+    const actions = document.createElement("div");
+    actions.className = "shortcut-actions";
+
+    const openBtn = document.createElement("button");
+    openBtn.textContent = "Ouvrir";
+    openBtn.onclick = () => openShortcut(shortcut.id);
+
+    actions.appendChild(openBtn);
+
+    if (!shortcut.locked) {
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "Renommer";
+      renameBtn.onclick = () => renameShortcut(shortcut.id);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = () => deleteShortcut(shortcut.id);
+
+      actions.appendChild(renameBtn);
+      actions.appendChild(deleteBtn);
+    }
+
+    const preview = document.createElement("div");
+    preview.className = "shortcut-preview";
+
+    if (!shortcutStickers.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-note";
+      empty.textContent = shortcut.locked
+        ? "Aucun sticker pour le moment."
+        : "Ajoute des stickers depuis Éditer > Ajouter au raccourci.";
+      preview.appendChild(empty);
+    } else {
+      renderStickers(shortcutStickers.slice(0, 4), preview);
+    }
+
+    box.appendChild(head);
+    box.appendChild(actions);
+    box.appendChild(preview);
+
+    container.appendChild(box);
+  });
+
+  if (currentShortcutId) {
+    renderShortcutPage(stickers);
+  }
+}
+
+function createShortcut() {
+  const input = document.getElementById("shortcutNameInput");
+  const name = input.value.trim();
+
+  if (!name) return alert("Écris un nom de raccourci.");
+
+  const shortcuts = getUserShortcuts();
+
+  if (getAllShortcuts().some(s => s.name.toLowerCase() === name.toLowerCase())) {
+    return alert("Ce raccourci existe déjà.");
+  }
+
+  shortcuts.push({
+    id: crypto.randomUUID(),
+    name,
+    icon: "⌨️",
+    type: "custom",
+    stickerIds: []
+  });
+
+  saveUserShortcuts(shortcuts);
+  input.value = "";
+
+  getAll("stickers").then(renderShortcuts);
+}
+
+function renameShortcut(id) {
+  const shortcuts = getUserShortcuts();
+  const shortcut = shortcuts.find(s => s.id === id);
+  if (!shortcut) return;
+
+  const newName = prompt("Nouveau nom du raccourci :", shortcut.name);
+  if (newName === null || !newName.trim()) return;
+
+  shortcut.name = newName.trim();
+  saveUserShortcuts(shortcuts);
+
+  getAll("stickers").then(renderShortcuts);
+}
+
+function deleteShortcut(id) {
+  if (!confirm("Supprimer ce raccourci personnel ? Les stickers ne seront pas supprimés.")) return;
+
+  const shortcuts = getUserShortcuts().filter(s => s.id !== id);
+  saveUserShortcuts(shortcuts);
+
+  if (currentShortcutId === id) {
+    closeShortcutPage();
+  }
+
+  getAll("stickers").then(renderShortcuts);
+}
+
+function openShortcut(id) {
+  currentShortcutId = id;
+
+  document.getElementById("homePage").classList.add("hidden");
+  document.getElementById("themesPage").classList.add("hidden");
+  document.getElementById("shortcutPage").classList.remove("hidden");
+
+  getAll("stickers").then(renderShortcutPage);
+}
+
+function closeShortcutPage() {
+  currentShortcutId = null;
+
+  document.getElementById("shortcutPage").classList.add("hidden");
+  document.getElementById("themesPage").classList.add("hidden");
+  document.getElementById("homePage").classList.remove("hidden");
+}
+
+function renderShortcutPage(stickers) {
+  const shortcut = getAllShortcuts().find(s => s.id === currentShortcutId);
+  if (!shortcut) return;
+
+  document.getElementById("shortcutPageTitle").textContent =
+    `${shortcut.icon || "⌨️"} ${shortcut.name}`;
 
   renderStickers(
-    recentStickers,
-    document.getElementById("recentGallery")
+    getShortcutStickers(shortcut, stickers),
+    document.getElementById("shortcutPageGallery")
   );
 }
+
+function addStickerToShortcut(stickerId, shortcutId) {
+  if (shortcutId === "favorites") {
+    toggleFavorite(stickerId);
+    return;
+  }
+
+  if (shortcutId === "recents") {
+    recordRecentSticker(stickerId);
+    renderAll();
+    return;
+  }
+
+  const shortcuts = getUserShortcuts();
+  const shortcut = shortcuts.find(s => s.id === shortcutId);
+  if (!shortcut) return;
+
+  shortcut.stickerIds = shortcut.stickerIds || [];
+
+  if (!shortcut.stickerIds.includes(stickerId)) {
+    shortcut.stickerIds.push(stickerId);
+  }
+
+  saveUserShortcuts(shortcuts);
+  renderAll();
+}
+
+function removeStickerFromShortcut(stickerId, shortcutId) {
+  if (shortcutId === "favorites") {
+    toggleFavorite(stickerId);
+    return;
+  }
+
+  if (shortcutId === "recents") {
+    const ids = getRecentIds().filter(id => id !== stickerId);
+    saveRecentIds(ids);
+    renderAll();
+    return;
+  }
+
+  const shortcuts = getUserShortcuts();
+  const shortcut = shortcuts.find(s => s.id === shortcutId);
+  if (!shortcut) return;
+
+  shortcut.stickerIds = (shortcut.stickerIds || []).filter(id => id !== stickerId);
+
+  saveUserShortcuts(shortcuts);
+  renderAll();
+}
+
 
 function renderStickers(stickers, container) {
   container.innerHTML = "";
@@ -1020,6 +1378,32 @@ function renderStickers(stickers, container) {
       editPanel.appendChild(renameBtn);
       editPanel.appendChild(moveBtn);
       editPanel.appendChild(deleteBtn);
+
+      const shortcutRow = document.createElement("div");
+      shortcutRow.className = "shortcut-select-row";
+
+      const shortcutSelect = document.createElement("select");
+
+      getAllShortcuts().forEach(shortcut => {
+        const option = document.createElement("option");
+        option.value = shortcut.id;
+        option.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name}`;
+        shortcutSelect.appendChild(option);
+      });
+
+      const addShortcutBtn = document.createElement("button");
+      addShortcutBtn.textContent = "Ajouter au raccourci";
+      addShortcutBtn.onclick = () => addStickerToShortcut(sticker.id, shortcutSelect.value);
+
+      const removeShortcutBtn = document.createElement("button");
+      removeShortcutBtn.textContent = "Retirer";
+      removeShortcutBtn.onclick = () => removeStickerFromShortcut(sticker.id, shortcutSelect.value);
+
+      shortcutRow.appendChild(shortcutSelect);
+      shortcutRow.appendChild(addShortcutBtn);
+      shortcutRow.appendChild(removeShortcutBtn);
+
+      editPanel.appendChild(shortcutRow);
 
       card.appendChild(img);
       card.appendChild(title);
@@ -1204,15 +1588,22 @@ async function deleteSticker(id) {
 
 document.getElementById("addThemeBtn").onclick = addTheme;
 document.getElementById("addStickerBtn").onclick = addSticker;
-document.getElementById("searchBtn").onclick = () => renderStickers(stickers, document.getElementById("gallery"));
+document.getElementById("searchBtn").onclick = () => renderAll();
+document.getElementById("createShortcutBtn").onclick = createShortcut;
+document.getElementById("backShortcutHomeBtn").onclick = closeShortcutPage;
+
 document.getElementById("goThemesBtn").onclick = () => {
+  currentShortcutId = null;
   document.getElementById("homePage").classList.add("hidden");
+  document.getElementById("shortcutPage").classList.add("hidden");
   document.getElementById("themesPage").classList.remove("hidden");
   document.getElementById("stickersView").classList.add("hidden");
 };
 document.getElementById("backHomeBtn").onclick = () => {
+  currentShortcutId = null;
   document.getElementById("homePage").classList.remove("hidden");
   document.getElementById("themesPage").classList.add("hidden");
+  document.getElementById("shortcutPage").classList.add("hidden");
 };
 document.getElementById("backThemesBtn").onclick = () => {
   document.getElementById("stickersView").classList.add("hidden");
