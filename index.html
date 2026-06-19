@@ -190,6 +190,17 @@ button:hover{background:#555}
   }
 }
 
+.pinned-theme{
+  border-color:rgba(255,215,80,.8);
+  box-shadow:0 0 10px rgba(255,215,80,.25);
+}
+.recent-note{
+  color:#aaa;
+  font-size:13px;
+  margin-top:-8px;
+  margin-bottom:12px;
+}
+
 </style>
 </head>
 
@@ -256,6 +267,12 @@ flex-wrap:wrap;
     <div id="favoritesGallery" class="gallery"></div>
   </div>
 
+  <div class="section">
+    <h2>Derniers utilisés 🕒</h2>
+    <div class="recent-note">Clique sur “Utiliser” ou sur l’image d’un sticker pour l’ajouter ici.</div>
+    <div id="recentGallery" class="gallery"></div>
+  </div>
+
 </div>
 
 <div id="themesPage" class="hidden">
@@ -279,6 +296,7 @@ flex-wrap:wrap;
 
 <script>
 let db;
+const RECENT_KEY = "loult_recent_stickers_v1";
 
 const request = indexedDB.open("LoultStickersDB", 5);
 
@@ -332,6 +350,28 @@ function fileToDataURL(file) {
   });
 }
 
+function sortThemes(themes) {
+  return themes.sort((a,b) => {
+    if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+    return a.name.localeCompare(b.name, "fr");
+  });
+}
+
+function getRecentIds() {
+  return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+}
+
+function saveRecentIds(ids) {
+  localStorage.setItem(RECENT_KEY, JSON.stringify(ids));
+}
+
+function recordRecentSticker(id) {
+  let ids = getRecentIds().filter(existingId => existingId !== id);
+  ids.unshift(id);
+  ids = ids.slice(0, 12);
+  saveRecentIds(ids);
+}
+
 async function addTheme() {
   const input = document.getElementById("themeName");
   const iconInput = document.getElementById("themeIcon");
@@ -359,7 +399,8 @@ async function addTheme() {
   await put("themes", {
     id: crypto.randomUUID(),
     name,
-    icon
+    icon,
+    pinned: false
   });
 
   input.value = "";
@@ -411,6 +452,7 @@ async function renderAll() {
   renderQuickThemes(themes);
   renderThemes(themes, stickers);
   renderFavorites(stickers);
+  renderRecents(stickers);
 }
 
 
@@ -425,8 +467,7 @@ function renderThemeSelect(themes) {
   const select = document.getElementById("themeSelect");
   select.innerHTML = "";
 
-  themes
-    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+  sortThemes([...themes])
     .forEach(theme => {
       const option = document.createElement("option");
       option.value = theme.id;
@@ -439,8 +480,7 @@ function renderQuickThemes(themes) {
   const container = document.getElementById("quickThemes");
   container.innerHTML = "";
 
-  themes
-    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+  sortThemes([...themes])
     .forEach(theme => {
       const div = document.createElement("div");
 
@@ -484,15 +524,16 @@ function renderThemes(themes, stickers) {
   const container = document.getElementById("themes");
   container.innerHTML = "";
 
-  themes
-    .sort((a,b) => a.name.localeCompare(b.name, "fr"))
+  sortThemes([...themes])
     .forEach(theme => {
       const count = stickers.filter(s => s.themeId === theme.id).length;
 
       const box = document.createElement("div");
       box.className = "theme";
+      if (theme.pinned) box.classList.add("pinned-theme");
 
       box.innerHTML = `
+        ${theme.pinned ? `<div style="color:#ffd54a;font-size:13px;margin-bottom:6px;">📌 Épinglé</div>` : ""}
         ${
           theme.icon
             ? `<img src="${theme.icon}"
@@ -547,6 +588,13 @@ function renderThemes(themes, stickers) {
         changeThemeIcon(theme.id);
       };
 
+      const pinBtn = document.createElement("button");
+      pinBtn.textContent = theme.pinned ? "Désépingler" : "Épingler";
+      pinBtn.onclick = e => {
+        e.stopPropagation();
+        toggleThemePin(theme.id);
+      };
+
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Supprimer";
       deleteBtn.onclick = e => {
@@ -558,6 +606,7 @@ function renderThemes(themes, stickers) {
       box.appendChild(openBtn);
       box.appendChild(renameBtn);
       box.appendChild(iconBtn);
+      box.appendChild(pinBtn);
       box.appendChild(deleteBtn);
 
       container.appendChild(box);
@@ -587,6 +636,18 @@ function renderFavorites(stickers) {
   );
 }
 
+function renderRecents(stickers) {
+  const ids = getRecentIds();
+  const recentStickers = ids
+    .map(id => stickers.find(s => s.id === id))
+    .filter(Boolean);
+
+  renderStickers(
+    recentStickers,
+    document.getElementById("recentGallery")
+  );
+}
+
 function renderStickers(stickers, container) {
   container.innerHTML = "";
 
@@ -605,9 +666,16 @@ function renderStickers(stickers, container) {
 
       const img = document.createElement("img");
       img.src = url;
+      img.title = "Cliquer pour marquer comme utilisé";
+      img.style.cursor = "pointer";
+      img.onclick = () => useSticker(sticker.id);
 
       const title = document.createElement("div");
       title.innerHTML = `<strong>${sticker.name}</strong>`;
+
+      const useBtn = document.createElement("button");
+      useBtn.textContent = "Utiliser";
+      useBtn.onclick = () => useSticker(sticker.id);
 
       const favBtn = document.createElement("button");
       favBtn.textContent = sticker.favorite ? "⭐" : "☆";
@@ -627,6 +695,7 @@ function renderStickers(stickers, container) {
 
       card.appendChild(img);
       card.appendChild(title);
+      card.appendChild(useBtn);
       card.appendChild(favBtn);
       card.appendChild(renameBtn);
       card.appendChild(moveBtn);
@@ -634,6 +703,22 @@ function renderStickers(stickers, container) {
 
       container.appendChild(card);
     });
+}
+
+async function useSticker(id) {
+  recordRecentSticker(id);
+  const stickers = await getAll("stickers");
+  renderRecents(stickers);
+}
+
+async function toggleThemePin(id) {
+  const themes = await getAll("themes");
+  const theme = themes.find(t => t.id === id);
+  if (!theme) return;
+
+  theme.pinned = !theme.pinned;
+  await put("themes", theme);
+  renderAll();
 }
 
 async function toggleFavorite(id) {
@@ -688,7 +773,7 @@ async function moveSticker(id) {
   const sticker = stickers.find(s => s.id === id);
   if (!sticker) return;
 
-  const sortedThemes = themes.sort((a,b) => a.name.localeCompare(b.name, "fr"));
+  const sortedThemes = sortThemes([...themes]);
   const currentTheme = sortedThemes.find(t => t.id === sticker.themeId);
 
   const choices = sortedThemes
