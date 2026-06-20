@@ -1495,8 +1495,8 @@ function renderThemes(themes, stickers) {
       };
 
       editPanel.appendChild(iconBtn);
-      editPanel.appendChild(renameBtn);
-      editPanel.appendChild(deleteBtn);
+      
+      
 
       box.onclick = () => openTheme(theme.id);
       box.appendChild(openBtn);
@@ -1831,16 +1831,16 @@ function renderStickers(stickers, container) {
       const primaryActions = document.createElement("div");
       primaryActions.className = "primary-actions";
 
-      const useBtn = document.createElement("button");
-      useBtn.textContent = "Utiliser";
-      useBtn.onclick = () => useSticker(sticker.id);
+      const copyBtnMain = document.createElement("button");
+      copyBtnMain.textContent = "Copier URL";
+      copyBtnMain.onclick = () => copyStickerUrl(sticker.id);
 
-      const postBtn = document.createElement("button");
-      postBtn.textContent = "Poster";
-      postBtn.onclick = () => prepareLoultPost(sticker.id);
+      const previewBtnMain = document.createElement("button");
+      previewBtnMain.textContent = "Aperçu";
+      previewBtnMain.onclick = () => openPreview(sticker.id);
 
-      primaryActions.appendChild(useBtn);
-      primaryActions.appendChild(postBtn);
+      primaryActions.appendChild(copyBtnMain);
+      primaryActions.appendChild(previewBtnMain);
 
       const editToggle = document.createElement("button");
       editToggle.className = "edit-toggle";
@@ -1878,12 +1878,12 @@ function renderStickers(stickers, container) {
       deleteBtn.textContent = "Supprimer";
       deleteBtn.onclick = () => deleteSticker(sticker.id);
 
-      editPanel.appendChild(previewBtn);
-      editPanel.appendChild(copyBtn);
-      editPanel.appendChild(favBtn);
-      editPanel.appendChild(renameBtn);
-      editPanel.appendChild(moveBtn);
-      editPanel.appendChild(deleteBtn);
+      
+      
+      
+      
+      
+      
 
       const shortcutRow = document.createElement("div");
       shortcutRow.className = "shortcut-select-row";
