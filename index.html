@@ -1148,6 +1148,7 @@ let db;
 const RECENT_KEY = "loult_recent_stickers_v1";
 const SHORTCUTS_KEY = "loult_personal_shortcuts_v1";
 let currentShortcutId = null;
+let currentThemeId = null;
 
 const request = indexedDB.open("LoultStickersDB", 5);
 
@@ -1314,6 +1315,23 @@ async function renderAll() {
   renderQuickThemes(themes);
   renderThemes(themes, stickers);
   renderShortcuts(stickers);
+
+  if (currentThemeId) {
+    const currentTheme = themes.find(t => t.id === currentThemeId);
+
+    if (currentTheme) {
+      document.getElementById("stickersView").classList.remove("hidden");
+      document.getElementById("themeTitle").textContent = currentTheme.name;
+
+      renderStickers(
+        stickers.filter(s => s.themeId === currentThemeId),
+        document.getElementById("gallery")
+      );
+    } else {
+      currentThemeId = null;
+      document.getElementById("stickersView").classList.add("hidden");
+    }
+  }
 }
 
 
@@ -1491,6 +1509,8 @@ function renderThemes(themes, stickers) {
 }
 
 async function openTheme(themeId) {
+  currentThemeId = themeId;
+
   const themes = await getAll("themes");
   const stickers = await getAll("stickers");
 
@@ -2068,7 +2088,23 @@ async function moveSticker(id) {
 
 async function deleteSticker(id) {
   if (!confirm("Supprimer ce sticker ?")) return;
+
   await del("stickers", id);
+
+  // Nettoyer aussi les derniers utilisés
+  const recentIds = getRecentIds().filter(recentId => recentId !== id);
+  saveRecentIds(recentIds);
+
+  // Nettoyer aussi les raccourcis personnels
+  const shortcuts = getUserShortcuts().map(shortcut => {
+    shortcut.stickerIds = (shortcut.stickerIds || []).filter(stickerId => stickerId !== id);
+    return shortcut;
+  });
+  saveUserShortcuts(shortcuts);
+
+  // Fermer l'aperçu si le sticker supprimé était affiché
+  document.getElementById("previewModal").style.display = "none";
+
   await renderAll();
 }
 
@@ -2080,6 +2116,7 @@ document.getElementById("backShortcutHomeBtn").onclick = closeShortcutPage;
 
 document.getElementById("goThemesBtn").onclick = () => {
   currentShortcutId = null;
+  currentThemeId = null;
   document.getElementById("homePage").classList.add("hidden");
   document.getElementById("shortcutPage").classList.add("hidden");
   document.getElementById("themesPage").classList.remove("hidden");
@@ -2087,11 +2124,13 @@ document.getElementById("goThemesBtn").onclick = () => {
 };
 document.getElementById("backHomeBtn").onclick = () => {
   currentShortcutId = null;
+  currentThemeId = null;
   document.getElementById("homePage").classList.remove("hidden");
   document.getElementById("themesPage").classList.add("hidden");
   document.getElementById("shortcutPage").classList.add("hidden");
 };
 document.getElementById("backThemesBtn").onclick = () => {
+  currentThemeId = null;
   document.getElementById("stickersView").classList.add("hidden");
 };
 document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
