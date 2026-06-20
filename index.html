@@ -1597,13 +1597,13 @@ function renderShortcuts(stickers) {
     const icon = document.createElement("span");
     icon.className = "shortcut-title-icon";
 
-    if (shortcut.icon && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))) {
+    if (shortcut.icon && typeof shortcut.icon === "string" && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))) {
       const img = document.createElement("img");
       img.src = shortcut.icon;
       img.alt = "";
       icon.appendChild(img);
     } else {
-      icon.textContent = shortcut.icon || "▣";
+      icon.textContent = "▣";
     }
 
     const titleText = document.createElement("span");
@@ -1825,9 +1825,9 @@ function renderShortcutPage(stickers) {
   if (!shortcut) return;
 
   document.getElementById("shortcutPageTitle").innerHTML =
-    `${shortcut.icon && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))
-      ? `<img src="${shortcut.icon}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;">`
-      : `<span style="margin-right:8px;">${shortcut.icon || "▣"}</span>`}${shortcut.name}`;
+    `${shortcut.icon && typeof shortcut.icon === "string" && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))
+      ? `<img src="${shortcut.icon}" style="width:52px;height:52px;object-fit:cover;border-radius:10px;vertical-align:middle;margin-right:10px;">`
+      : `<span style="margin-right:8px;">▣</span>`}${shortcut.name}`;
 
   renderStickers(
     getShortcutStickers(shortcut, stickers),
@@ -1972,7 +1972,7 @@ function renderStickers(stickers, container) {
         personalShortcuts.forEach(shortcut => {
           const option = document.createElement("option");
           option.value = shortcut.id;
-          option.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name}`;
+          option.textContent = shortcut.name;
           shortcutSelect.appendChild(option);
         });
 
@@ -2562,6 +2562,63 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
   border-radius:10px !important;
   vertical-align:middle !important;
   margin-right:10px !important;
+}
+</style>
+
+
+<style>
+/* ===== FIX SELECT RACCOURCI + MENU AU-DESSUS ===== */
+
+/* Le select d'ajout au raccourci affiche seulement le nom, pas l'URL data:image */
+.shortcut-select-row select option{
+  color:#111;
+}
+
+/* Les cartes raccourcis ne coupent plus le menu éditer */
+.shortcut-box{
+  overflow:visible !important;
+  position:relative !important;
+}
+
+.shortcut-box:has(.shortcut-edit-panel.open){
+  z-index:9999 !important;
+}
+
+.shortcut-actions,
+.shortcut-edit-wrap,
+.shortcut-edit-panel{
+  position:relative !important;
+  z-index:10000 !important;
+}
+
+.shortcut-edit-panel{
+  position:absolute !important;
+  top:42px !important;
+  left:0 !important;
+  min-width:175px !important;
+  background:rgba(12,6,20,.98) !important;
+  border:1px solid rgba(220,120,255,.45) !important;
+  box-shadow:0 12px 28px rgba(0,0,0,.75), 0 0 18px rgba(190,80,255,.35) !important;
+}
+
+.shortcut-preview,
+.shortcut-preview .card{
+  position:relative !important;
+  z-index:1 !important;
+}
+
+/* Icône raccourci bien visible */
+.shortcut-title-icon{
+  width:46px !important;
+  height:46px !important;
+  flex:0 0 46px !important;
+}
+
+.shortcut-title-icon img{
+  width:46px !important;
+  height:46px !important;
+  object-fit:cover !important;
+  border-radius:9px !important;
 }
 </style>
 
