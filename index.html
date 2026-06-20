@@ -1778,6 +1778,7 @@ function renderStickers(stickers, container) {
   container.innerHTML = "";
 
   const search = document.getElementById("searchInput").value.toLowerCase();
+  let renderedCount = 0;
 
   stickers
     .filter(s => {
@@ -1786,7 +1787,19 @@ function renderStickers(stickers, container) {
     })
     .sort((a,b) => a.name.localeCompare(b.name, "fr"))
     .forEach(sticker => {
-      const url = getStickerDisplayUrl(sticker);
+      let url;
+
+      try {
+        url = getStickerDisplayUrl(sticker);
+      } catch (err) {
+        console.error("Sticker impossible à afficher :", sticker, err);
+        return;
+      }
+
+      if (!url) {
+        console.warn("Sticker sans image :", sticker);
+        return;
+      }
 
       const card = document.createElement("div");
       card.className = "card";
@@ -1890,13 +1903,46 @@ function renderStickers(stickers, container) {
       card.appendChild(editPanel);
 
       container.appendChild(card);
+      renderedCount++;
     });
+
+  if (!renderedCount && stickers.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-note";
+    empty.textContent = "Aucun sticker affichable ici. Si tu as utilisé un fichier local, réessaie avec une URL d'image publique.";
+    container.appendChild(empty);
+  }
 }
 
 function getStickerDisplayUrl(sticker) {
-  return sticker.type === "url"
-    ? sticker.url
-    : URL.createObjectURL(sticker.file);
+  if (!sticker) return "";
+
+  // Stickers ajoutés par URL
+  if (sticker.type === "url" && sticker.url) {
+    return sticker.url;
+  }
+
+  // Anciennes versions ou stickers avec URL sans type
+  if (sticker.url) {
+    return sticker.url;
+  }
+
+  // Stickers ajoutés par fichier local : Blob/File stocké dans IndexedDB
+  if (sticker.file instanceof Blob) {
+    return URL.createObjectURL(sticker.file);
+  }
+
+  // Sécurité pour anciennes versions qui auraient stocké une dataURL
+  if (typeof sticker.file === "string") {
+    return sticker.file;
+  }
+
+  // Sécurité supplémentaire si l'image a été stockée sous un autre nom
+  if (sticker.dataUrl) {
+    return sticker.dataUrl;
+  }
+
+  return "";
 }
 
 async function openPreview(id) {
@@ -1904,7 +1950,22 @@ async function openPreview(id) {
   const sticker = stickers.find(s => s.id === id);
   if (!sticker) return;
 
-  document.getElementById("previewImage").src = getStickerDisplayUrl(sticker);
+  let previewUrl;
+
+  try {
+    previewUrl = getStickerDisplayUrl(sticker);
+  } catch (err) {
+    console.error("Aperçu impossible :", sticker, err);
+    alert("Impossible d'afficher ce sticker. L'image locale est peut-être cassée.");
+    return;
+  }
+
+  if (!previewUrl) {
+    alert("Impossible d'afficher ce sticker. L'image est manquante.");
+    return;
+  }
+
+  document.getElementById("previewImage").src = previewUrl;
   document.getElementById("previewTitle").textContent = sticker.name;
   document.getElementById("previewTags").textContent = sticker.tags && sticker.tags.length
     ? sticker.tags.map(tag => "#" + tag).join(" ")
