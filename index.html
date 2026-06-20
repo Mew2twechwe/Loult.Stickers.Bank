@@ -1066,11 +1066,6 @@ button:hover{background:#555}
           <select id="themeSelect"></select>
         </div>
 
-        <label class="sticker-bg-remove">
-          <input id="removeStickerBg" type="checkbox">
-          Enlever le fond du sticker
-        </label>
-
         <button id="addStickerBtn">Ajouter le sticker</button>
       </div>
     </div>
@@ -1217,124 +1212,6 @@ function fileToDataURL(file) {
   });
 }
 
-
-
-/* ===== TRANSFORMATION UNIQUEMENT POUR LES STICKERS ===== */
-
-function loadStickerImageFromSource(source) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Image sticker impossible à charger."));
-
-    if (source instanceof File || source instanceof Blob) {
-      img.src = URL.createObjectURL(source);
-    } else {
-      img.crossOrigin = "anonymous";
-      img.src = source;
-    }
-  });
-}
-
-function removeSimpleStickerBackground(canvas, tolerance = 52, softEdge = 26) {
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  const w = canvas.width;
-  const h = canvas.height;
-
-  const getPx = (x, y) => {
-    const i = (y * w + x) * 4;
-    return [data[i], data[i + 1], data[i + 2]];
-  };
-
-  const samples = [];
-
-  for (let x = 0; x < w; x++) {
-    samples.push(getPx(x, 0));
-    samples.push(getPx(x, h - 1));
-  }
-
-  for (let y = 0; y < h; y++) {
-    samples.push(getPx(0, y));
-    samples.push(getPx(w - 1, y));
-  }
-
-  const bg = samples.reduce((acc, p) => {
-    acc[0] += p[0];
-    acc[1] += p[1];
-    acc[2] += p[2];
-    return acc;
-  }, [0, 0, 0]).map(v => v / samples.length);
-
-  for (let i = 0; i < data.length; i += 4) {
-    const dr = data[i] - bg[0];
-    const dg = data[i + 1] - bg[1];
-    const db = data[i + 2] - bg[2];
-    const distance = Math.sqrt(dr * dr + dg * dg + db * db);
-
-    if (distance <= tolerance) {
-      data[i + 3] = 0;
-    } else if (distance <= tolerance + softEdge) {
-      const ratio = (distance - tolerance) / softEdge;
-      data[i + 3] = Math.round(data[i + 3] * ratio);
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-}
-
-async function transformStickerOnly(source, options = {}) {
-  const maxSize = 96;
-  const removeBackground = !!options.removeBackground;
-
-  const img = await loadStickerImageFromSource(source);
-
-  const originalWidth = img.naturalWidth || img.width;
-  const originalHeight = img.naturalHeight || img.height;
-
-  if (!originalWidth || !originalHeight) {
-    throw new Error("Dimensions sticker invalides.");
-  }
-
-  // Plafond 96×96, proportionnel, sans déformation, sans agrandir les petites images.
-  const ratio = Math.min(maxSize / originalWidth, maxSize / originalHeight, 1);
-  const width = Math.max(1, Math.round(originalWidth * ratio));
-  const height = Math.max(1, Math.round(originalHeight * ratio));
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  ctx.clearRect(0, 0, width, height);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, width, height);
-
-  if (removeBackground) {
-    removeSimpleStickerBackground(canvas);
-  }
-
-  return {
-    dataUrl: canvas.toDataURL("image/png"),
-    width,
-    height,
-    originalWidth,
-    originalHeight
-  };
-}
-
-function isDataImageUrl(value) {
-  return typeof value === "string" && value.startsWith("data:image/");
-}
-
-function isHttpUrl(value) {
-  return typeof value === "string" && /^https?:\/\//i.test(value);
-}
-
-
 function sortThemes(themes) {
   return themes.sort((a,b) => {
     if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
@@ -1408,82 +1285,33 @@ async function addSticker() {
     .map(tag => tag.trim())
     .filter(Boolean);
   const themeId = document.getElementById("themeSelect").value;
-  const removeBackground = document.getElementById("removeStickerBg")
-    ? document.getElementById("removeStickerBg").checked
-    : false;
 
   if (!file && !url) return alert("Ajoute un sticker, soit par fichier soit par URL.");
   if (!name) return alert("Donne un nom au sticker.");
   if (!themeId) return alert("Choisis un thème.");
 
-  let displayUrl = "";
-  let publicUrl = "";
-  let width = null;
-  let height = null;
-  let originalWidth = null;
-  let originalHeight = null;
-
-  if (file) {
-    try {
-      const transformed = await transformStickerOnly(file, { removeBackground });
-      displayUrl = transformed.dataUrl;
-      width = transformed.width;
-      height = transformed.height;
-      originalWidth = transformed.originalWidth;
-      originalHeight = transformed.originalHeight;
-    } catch (err) {
-      console.error(err);
-      return alert("Impossible de transformer ce sticker fichier.");
-    }
-  } else {
-    publicUrl = url;
-
-    try {
-      const transformed = await transformStickerOnly(url, { removeBackground });
-      displayUrl = transformed.dataUrl;
-      width = transformed.width;
-      height = transformed.height;
-      originalWidth = transformed.originalWidth;
-      originalHeight = transformed.originalHeight;
-    } catch (err) {
-      console.warn("Transformation locale impossible pour cette URL, affichage avec URL originale :", err);
-      displayUrl = url;
-    }
-  }
-
-  await put("stickers", {
+  let stickerData = {
     id: crypto.randomUUID(),
     name,
     themeId,
     favorite: false,
-    tags,
+    tags
+  };
 
-    // Uniquement pour l'affichage dans la banque.
-    displayUrl,
+  if (file) {
+    stickerData.file = file;
+    stickerData.type = "file";
+  } else {
+    stickerData.url = url;
+    stickerData.type = "url";
+  }
 
-    // Uniquement pour Loult. Jamais de data:image ici.
-    publicUrl,
-
-    type: file ? "file" : "url",
-    url: publicUrl,
-
-    transformed: isDataImageUrl(displayUrl),
-    maxSize: 96,
-    proportionalResize: true,
-    width,
-    height,
-    originalWidth,
-    originalHeight,
-    backgroundRemoved: removeBackground
-  });
+  await put("stickers", stickerData);
 
   document.getElementById("stickerFile").value = "";
   document.getElementById("stickerUrl").value = "";
   document.getElementById("stickerName").value = "";
   document.getElementById("stickerTags").value = "";
-  if (document.getElementById("removeStickerBg")) {
-    document.getElementById("removeStickerBg").checked = false;
-  }
 
   renderAll();
 }
@@ -2204,11 +2032,30 @@ function renderStickers(stickers, container) {
 function getStickerDisplayUrl(sticker) {
   if (!sticker) return "";
 
-  if (sticker.displayUrl) return sticker.displayUrl;
-  if (sticker.dataUrl) return sticker.dataUrl;
-  if (sticker.file instanceof Blob) return URL.createObjectURL(sticker.file);
-  if (typeof sticker.file === "string") return sticker.file;
-  if (sticker.url) return sticker.url;
+  // Stickers ajoutés par URL
+  if (sticker.type === "url" && sticker.url) {
+    return sticker.url;
+  }
+
+  // Anciennes versions ou stickers avec URL sans type
+  if (sticker.url) {
+    return sticker.url;
+  }
+
+  // Stickers ajoutés par fichier local : Blob/File stocké dans IndexedDB
+  if (sticker.file instanceof Blob) {
+    return URL.createObjectURL(sticker.file);
+  }
+
+  // Sécurité pour anciennes versions qui auraient stocké une dataURL
+  if (typeof sticker.file === "string") {
+    return sticker.file;
+  }
+
+  // Sécurité supplémentaire si l'image a été stockée sous un autre nom
+  if (sticker.dataUrl) {
+    return sticker.dataUrl;
+  }
 
   return "";
 }
@@ -2252,19 +2099,13 @@ async function copyStickerUrl(id) {
   const sticker = stickers.find(s => s.id === id);
   if (!sticker) return;
 
-  const loultUrl = sticker.publicUrl || (isHttpUrl(sticker.url) ? sticker.url : "");
-
-  if (!loultUrl || isDataImageUrl(loultUrl)) {
-    alert(
-      "Ce sticker est local ou transformé en data:image.\n\n" +
-      "Loult a besoin d'une vraie URL publique en https://...\n" +
-      "Ajoute ce sticker via une URL publique, ou héberge l'image transformée avant de la poster."
-    );
+  if (sticker.type !== "url") {
+    alert("Ce sticker vient d'un fichier local. Pour Loult, ajoute-le plutôt via une URL publique.");
     return;
   }
 
-  await navigator.clipboard.writeText(loultUrl);
-  alert("URL publique copiée pour Loult !");
+  await navigator.clipboard.writeText(sticker.url);
+  alert("URL copiée !");
 }
 
 async function prepareLoultPost(id) {
@@ -2274,13 +2115,11 @@ async function prepareLoultPost(id) {
 
   recordRecentSticker(id);
 
-  const loultUrl = sticker.publicUrl || (isHttpUrl(sticker.url) ? sticker.url : "");
-
-  if (loultUrl && !isDataImageUrl(loultUrl)) {
-    await navigator.clipboard.writeText(loultUrl);
-    alert("URL publique copiée pour Loult !");
+  if (sticker.type === "url") {
+    await navigator.clipboard.writeText(sticker.url);
+    alert("Préparé pour Loult : URL copiée. Plus tard, ce bouton pourra poster directement dans le chat.");
   } else {
-    alert("Sticker marqué comme utilisé, mais il faut une vraie URL publique pour Loult.");
+    alert("Sticker marqué comme utilisé. Pour poster dans Loult, il faudra une URL publique ou une intégration serveur.");
   }
 
   renderAll();
@@ -2780,69 +2619,6 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
   height:46px !important;
   object-fit:cover !important;
   border-radius:9px !important;
-}
-</style>
-
-
-<style>
-.sticker-bg-remove{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 10px;
-  margin:5px;
-  border-radius:8px;
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(255,120,220,.18);
-  color:#ddd;
-  font-size:13px;
-  white-space:nowrap;
-}
-.sticker-bg-remove input{
-  margin:0 !important;
-}
-.card img{
-  max-width:96px !important;
-  max-height:96px !important;
-  object-fit:contain !important;
-}
-</style>
-
-
-<style>
-/* ===== 96×96 UNIQUEMENT POUR LES STICKERS ===== */
-.card > img{
-  max-width:96px !important;
-  max-height:96px !important;
-  width:auto !important;
-  height:auto !important;
-  object-fit:contain !important;
-}
-
-/* Les icônes ne sont PAS limitées à 96px par le transformateur */
-.theme img,
-.quick-themes img,
-.shortcut-title-icon img,
-#shortcutPageTitle img{
-  image-rendering:auto !important;
-}
-
-/* Checkbox uniquement sticker */
-.sticker-bg-remove{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 10px;
-  margin:5px;
-  border-radius:8px;
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(255,120,220,.18);
-  color:#ddd;
-  font-size:13px;
-  white-space:nowrap;
-}
-.sticker-bg-remove input{
-  margin:0 !important;
 }
 </style>
 
