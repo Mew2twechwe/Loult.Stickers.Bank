@@ -1091,7 +1091,7 @@ button:hover{background:#555}
     </div>
 
     <div class="recent-note">
-      Favoris et Derniers utilisés sont les 2 raccourcis par défaut. Les prochains pourront être reliés à ALT+1, ALT+2, ALT+3...
+      Crée tes propres raccourcis personnels. Les prochains pourront être reliés à ALT+1, ALT+2, ALT+3...
     </div>
 
     <div id="shortcutsGrid" class="shortcuts-grid"></div>
@@ -1527,24 +1527,7 @@ async function openTheme(themeId) {
 }
 
 function getDefaultShortcuts() {
-  return [
-    {
-      id: "favorites",
-      name: "Favoris",
-      icon: "⭐",
-      type: "system",
-      system: "favorites",
-      locked: true
-    },
-    {
-      id: "recents",
-      name: "Derniers utilisés",
-      icon: "🕒",
-      type: "system",
-      system: "recents",
-      locked: true
-    }
-  ];
+  return [];
 }
 
 function getUserShortcuts() {
@@ -1878,20 +1861,7 @@ function renderStickers(stickers, container) {
       shortcutRow.appendChild(addShortcutBtn);
       shortcutRow.appendChild(removeShortcutBtn);
 
-      const favBtn = document.createElement("button");
-      favBtn.textContent = sticker.favorite ? "⭐ Favori" : "☆ Favori";
-      favBtn.onclick = () => toggleFavorite(sticker.id);
-
-      const moveBtn = document.createElement("button");
-      moveBtn.textContent = "Déplacer";
-      moveBtn.onclick = () => moveSticker(sticker.id);
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Supprimer";
-      deleteBtn.onclick = () => deleteSticker(sticker.id);
-
       editPanel.appendChild(shortcutRow);
-      editPanel.appendChild(favBtn);
       editPanel.appendChild(moveBtn);
       editPanel.appendChild(deleteBtn);
 
@@ -2124,9 +2094,11 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 <style>
 .primary-actions{
   display:flex;
+  flex-direction:row;
   justify-content:center;
+  align-items:center;
   gap:8px;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 .primary-actions button{
   min-width:92px;
