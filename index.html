@@ -280,19 +280,20 @@ button:hover{background:#555}
 }
 
 .forge-panel::after{
+  inset:-130px 0 0 0;
   background:
-    radial-gradient(circle at 9% 24%, rgba(255,236,152,.70) 0 1px, transparent 2.8px),
-    radial-gradient(circle at 15% 72%, rgba(255,136,58,.60) 0 1.2px, transparent 3px),
-    radial-gradient(circle at 23% 38%, rgba(255,228,118,.72) 0 1px, transparent 2.7px),
-    radial-gradient(circle at 31% 83%, rgba(255,100,55,.54) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 46% 20%, rgba(255,232,126,.72) 0 1.1px, transparent 2.8px),
-    radial-gradient(circle at 56% 72%, rgba(255,124,50,.58) 0 1.3px, transparent 3px),
-    radial-gradient(circle at 67% 34%, rgba(255,236,160,.76) 0 1px, transparent 2.8px),
-    radial-gradient(circle at 78% 78%, rgba(255,106,45,.60) 0 1.4px, transparent 3px),
-    radial-gradient(circle at 90% 24%, rgba(255,232,126,.72) 0 1.2px, transparent 3px),
-    radial-gradient(circle at 95% 64%, rgba(255,126,55,.58) 0 1.2px, transparent 3px);
-  opacity:.84;
-  animation:forgeSparkField 4.8s ease-in-out infinite alternate;
+    linear-gradient(180deg, transparent 0 8%, rgba(255,238,150,.95) 18%, rgba(255,104,32,.72) 52%, transparent 100%) 5% 0/2px 34px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,218,105,.88) 18%, rgba(255,70,42,.66) 52%, transparent 100%) 14% -70px/2px 27px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,242,170,.95) 18%, rgba(255,126,35,.70) 52%, transparent 100%) 23% -28px/2px 38px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,226,118,.88) 18%, rgba(255,82,44,.66) 52%, transparent 100%) 32% -98px/2px 30px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,238,150,.92) 18%, rgba(255,104,32,.68) 52%, transparent 100%) 43% -44px/2px 36px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,216,100,.86) 18%, rgba(255,68,42,.64) 52%, transparent 100%) 53% -116px/2px 28px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,244,175,.95) 18%, rgba(255,132,35,.70) 52%, transparent 100%) 64% -18px/2px 40px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,226,118,.88) 18%, rgba(255,82,44,.66) 52%, transparent 100%) 73% -86px/2px 30px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,238,150,.92) 18%, rgba(255,104,32,.68) 52%, transparent 100%) 84% -54px/2px 36px no-repeat,
+    linear-gradient(180deg, transparent 0 8%, rgba(255,216,100,.86) 18%, rgba(255,68,42,.64) 52%, transparent 100%) 94% -122px/2px 28px no-repeat;
+  opacity:.72;
+  animation:forgeSparkFall 4.8s linear infinite;
 }
 
 .forge-panel input,
@@ -384,11 +385,11 @@ button:hover{background:#555}
 
 .forge-brand{
   position:absolute;
-  left:76%;
-  top:31%;
-  transform:translate(-50%,-50%) rotate(-5deg);
-  width:min(520px,42vw);
-  height:210px;
+  left:81%;
+  top:39%;
+  transform:translate(-50%,-50%) rotate(-4deg);
+  width:min(500px,38vw);
+  height:230px;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -402,56 +403,35 @@ button:hover{background:#555}
 }
 
 .forge-icon{
-  width:230px;
-  height:112px;
-  margin:0 auto -2px;
+  position:relative;
+  width:205px;
+  height:148px;
+  margin:0 auto -22px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:0;
-  line-height:1;
-  color:transparent;
-  text-shadow:none;
 }
 
-.anvil-shape{
+.forge-icon::before{
+  content:"";
+  position:absolute;
+  inset:22px 18px 8px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center, rgba(255,120,35,.36), rgba(255,58,22,.16) 42%, transparent 70%);
+  filter:blur(10px);
+}
+
+.forge-anvil-img{
   position:relative;
+  z-index:2;
+  width:188px;
+  max-height:148px;
+  object-fit:contain;
   display:block;
-  width:220px;
-  height:112px;
-  background:
-    linear-gradient(180deg,#d93b45,#73101e) 86px 58px/52px 30px no-repeat,
-    linear-gradient(180deg,#ff6a53,#7d1022) 48px 84px/132px 22px no-repeat;
-  transform:scale(.9);
   filter:
-    drop-shadow(0 0 18px rgba(255,55,55,.58))
-    drop-shadow(0 0 12px rgba(255,220,92,.24))
-    drop-shadow(0 6px 0 rgba(60,0,12,.24));
-}
-
-.anvil-shape::before{
-  content:"";
-  position:absolute;
-  left:0;
-  top:0;
-  width:220px;
-  height:82px;
-  border-radius:12px;
-  background:linear-gradient(180deg,#ff8a58 0%,#f04a54 42%,#8c1325 100%);
-  clip-path:polygon(0 27%,58% 27%,70% 0,100% 0,88% 40%,73% 58%,30% 58%,24% 82%,0 82%);
-  box-shadow:inset 0 9px 16px rgba(255,255,255,.20), inset 0 -12px 18px rgba(60,0,12,.44);
-}
-
-.anvil-shape::after{
-  content:"";
-  position:absolute;
-  left:62px;
-  top:103px;
-  width:104px;
-  height:9px;
-  border-radius:999px;
-  background:rgba(255,104,82,.62);
-  box-shadow:0 0 14px rgba(255,55,55,.35);
+    drop-shadow(0 0 2px rgba(0,0,0,.90))
+    drop-shadow(0 8px 8px rgba(0,0,0,.45))
+    drop-shadow(0 0 16px rgba(255,96,35,.34));
 }
 
 .forge-title-logo{
@@ -517,18 +497,19 @@ button:hover{background:#555}
 }
 
 .forge-flame-layer::after{
-  inset:0;
+  inset:-160px 0 0 0;
   background:
-    radial-gradient(circle at 12% 22%, rgba(255,226,118,.55) 0 1px, transparent 2.4px),
-    radial-gradient(circle at 24% 58%, rgba(255,132,55,.42) 0 1.2px, transparent 2.8px),
-    radial-gradient(circle at 35% 18%, rgba(255,238,160,.45) 0 .9px, transparent 2.4px),
-    radial-gradient(circle at 48% 68%, rgba(255,116,54,.36) 0 1.3px, transparent 3px),
-    radial-gradient(circle at 59% 30%, rgba(255,232,126,.48) 0 1px, transparent 2.5px),
-    radial-gradient(circle at 72% 62%, rgba(255,128,48,.38) 0 1.2px, transparent 2.8px),
-    radial-gradient(circle at 84% 24%, rgba(255,226,118,.46) 0 1px, transparent 2.5px),
-    radial-gradient(circle at 92% 72%, rgba(255,115,50,.36) 0 1.3px, transparent 3px);
-  opacity:.75;
-  animation:forgeCleanSparks 5.2s ease-in-out infinite alternate;
+    linear-gradient(180deg, transparent 0 10%, rgba(255,244,170,.78) 18%, rgba(255,112,35,.52) 54%, transparent 100%) 9% -92px/2px 24px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,218,96,.72) 18%, rgba(255,72,45,.48) 54%, transparent 100%) 18% -18px/2px 18px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,244,170,.78) 18%, rgba(255,112,35,.52) 54%, transparent 100%) 28% -124px/2px 24px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,218,96,.72) 18%, rgba(255,72,45,.48) 54%, transparent 100%) 39% -50px/2px 18px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,244,170,.78) 18%, rgba(255,112,35,.52) 54%, transparent 100%) 49% -150px/2px 24px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,218,96,.72) 18%, rgba(255,72,45,.48) 54%, transparent 100%) 59% -76px/2px 18px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,244,170,.78) 18%, rgba(255,112,35,.52) 54%, transparent 100%) 69% -112px/2px 24px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,218,96,.72) 18%, rgba(255,72,45,.48) 54%, transparent 100%) 79% -34px/2px 18px no-repeat,
+    linear-gradient(180deg, transparent 0 10%, rgba(255,244,170,.78) 18%, rgba(255,112,35,.52) 54%, transparent 100%) 90% -138px/2px 24px no-repeat;
+  opacity:.60;
+  animation:forgeSparkFallSlow 6.2s linear infinite;
 }
 
 .forge-side-flames{
@@ -537,9 +518,7 @@ button:hover{background:#555}
     radial-gradient(ellipse 130px 55px at -2% 30%, rgba(255,55,35,.20) 0 20%, transparent 62%),
     radial-gradient(ellipse 160px 60px at 103% 34%, rgba(255,45,75,.18) 0 21%, transparent 63%),
     radial-gradient(ellipse 190px 45px at 10% 4%, rgba(255,120,45,.10) 0 20%, transparent 62%),
-    radial-gradient(ellipse 230px 50px at 86% 98%, rgba(255,90,30,.12) 0 22%, transparent 65%),
-    radial-gradient(circle at 18% 78%, rgba(255,214,94,.30) 0 1.2px, transparent 3px),
-    radial-gradient(circle at 78% 15%, rgba(255,196,80,.28) 0 1.2px, transparent 3px);
+    radial-gradient(ellipse 230px 50px at 86% 98%, rgba(255,90,30,.12) 0 22%, transparent 65%);
   animation:forgeCleanDrift 8s ease-in-out infinite alternate;
 }
 
@@ -549,19 +528,23 @@ button:hover{background:#555}
   100%{opacity:.34;transform:translateY(-8px) scaleY(1.08) translateX(8px)}
 }
 
-@keyframes forgeCleanSparks{
-  from{opacity:.46;transform:translateY(8px) translateX(-6px)}
-  to{opacity:.82;transform:translateY(-10px) translateX(8px)}
-}
-
 @keyframes forgeCleanDrift{
   from{opacity:.18;transform:translateX(-12px) translateY(3px)}
   to{opacity:.30;transform:translateX(12px) translateY(-5px)}
 }
 
-@keyframes forgeSparkField{
-  from{opacity:.54;transform:translateY(8px) translateX(-8px)}
-  to{opacity:.92;transform:translateY(-10px) translateX(10px)}
+@keyframes forgeSparkFall{
+  from{transform:translateY(-18%);opacity:.18}
+  14%{opacity:.78}
+  82%{opacity:.70}
+  to{transform:translateY(122%);opacity:0}
+}
+
+@keyframes forgeSparkFallSlow{
+  from{transform:translateY(-24%);opacity:.12}
+  18%{opacity:.64}
+  78%{opacity:.58}
+  to{transform:translateY(128%);opacity:0}
 }
 
 .forge-panel > *:not(.forge-brand):not(.forge-flame-layer):not(.forge-side-flames),
@@ -1118,7 +1101,7 @@ button:hover{background:#555}
   body{padding:12px}
   .search{width:100%;max-width:none}
   .forge-brand{width:92vw;height:220px;opacity:.18}
-  .forge-icon{transform:scale(.76);margin-bottom:-6px}
+  .forge-icon{transform:scale(.78);margin-bottom:-18px}
   .forge-title-logo{font-size:42px;-webkit-text-stroke:2px var(--blue)}
   .icon-choice-group,.media-choice-group{align-items:stretch;flex-direction:column;gap:8px}
   .choice-connector{align-self:flex-start;margin:4px 0}
@@ -1145,7 +1128,7 @@ button:hover{background:#555}
   <div class="section forge-panel">
     <div class="forge-flame-layer"></div>
     <div class="forge-side-flames"></div>
-        <div class="forge-brand" aria-hidden="true"><div class="forge-icon"><span class="anvil-shape"></span></div><div class="forge-title-logo">Loult Forge</div></div>
+        <div class="forge-brand" aria-hidden="true"><div class="forge-icon"><img class="forge-anvil-img" src="loult-forge-anvil.png" alt=""></div><div class="forge-title-logo">Loult Forge</div></div>
     <h2>Créer un thème</h2>
     <div class="forge-create-row">
 
