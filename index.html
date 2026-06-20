@@ -1891,9 +1891,13 @@ function renderStickers(stickers, container) {
       deleteBtn.textContent = "Supprimer";
       deleteBtn.onclick = () => deleteSticker(sticker.id);
 
+      const editTopActions = document.createElement("div");
+      editTopActions.className = "edit-top-actions";
+      editTopActions.appendChild(moveBtn);
+      editTopActions.appendChild(deleteBtn);
+
+      editPanel.appendChild(editTopActions);
       editPanel.appendChild(shortcutRow);
-      editPanel.appendChild(moveBtn);
-      editPanel.appendChild(deleteBtn);
 
       card.appendChild(img);
       card.appendChild(title);
@@ -2169,20 +2173,73 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 </script>
 
 
+
+
+
 <style>
+/* Correction alignement boutons sticker */
+.card{
+  width:150px;
+  box-sizing:border-box;
+}
+
 .primary-actions{
   display:flex !important;
   flex-direction:row !important;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:4px !important;
   flex-wrap:nowrap !important;
+  width:100%;
+  margin:6px auto 0 auto;
 }
+
 .primary-actions button{
-  min-width:76px;
-  flex:1 1 0;
+  flex:0 0 auto !important;
+  min-width:0 !important;
+  width:auto !important;
+  padding:8px 8px !important;
+  margin:0 !important;
   white-space:nowrap;
   font-size:12px;
+}
+
+/* Menu éditer : déplacer/supprimer en premier, côte à côte */
+.edit-panel{
+  padding:8px !important;
+}
+
+.edit-top-actions{
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  margin-bottom:8px;
+}
+
+.edit-top-actions button{
+  flex:1 1 0;
+  margin:0 !important;
+  white-space:nowrap;
+}
+
+/* Enlever la petite barre de séparation */
+.shortcut-select-row{
+  border-top:none !important;
+  padding-top:0 !important;
+  margin-top:0 !important;
+}
+
+.shortcut-select-row select{
+  width:100%;
+  max-width:none !important;
+  box-sizing:border-box;
+  margin:4px 0 !important;
+}
+
+.shortcut-select-row button{
+  margin:4px !important;
 }
 </style>
 
