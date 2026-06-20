@@ -1068,7 +1068,7 @@ button:hover{background:#555}
 
         <label class="sticker-bg-remove">
           <input id="removeStickerBg" type="checkbox">
-          Enlever fond simple du sticker
+          Enlever le fond du sticker
         </label>
 
         <button id="addStickerBtn">Ajouter le sticker</button>
@@ -1218,10 +1218,10 @@ function fileToDataURL(file) {
 }
 
 
-
 function loadImageFromSource(source) {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    img.crossOrigin = "anonymous";
 
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("Image impossible à charger."));
@@ -1229,41 +1229,34 @@ function loadImageFromSource(source) {
     if (source instanceof File || source instanceof Blob) {
       img.src = URL.createObjectURL(source);
     } else {
-      img.crossOrigin = "anonymous";
       img.src = source;
     }
   });
 }
 
-function removeUniformBackgroundFromCanvas(canvas, tolerance = 52, softEdge = 26) {
+function removeUniformBackgroundFromCanvas(canvas, tolerance = 42) {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
-  const w = canvas.width;
-  const h = canvas.height;
 
-  const getPx = (x, y) => {
-    const i = (y * w + x) * 4;
+  const samplePixel = (x, y) => {
+    const i = (y * canvas.width + x) * 4;
     return [data[i], data[i + 1], data[i + 2]];
   };
 
-  // On analyse beaucoup de points sur les bords, pas juste le blanc.
-  const samples = [];
-  for (let x = 0; x < w; x++) {
-    samples.push(getPx(x, 0));
-    samples.push(getPx(x, h - 1));
-  }
-  for (let y = 0; y < h; y++) {
-    samples.push(getPx(0, y));
-    samples.push(getPx(w - 1, y));
-  }
+  const corners = [
+    samplePixel(0, 0),
+    samplePixel(canvas.width - 1, 0),
+    samplePixel(0, canvas.height - 1),
+    samplePixel(canvas.width - 1, canvas.height - 1)
+  ];
 
-  const bg = samples.reduce((acc, p) => {
-    acc[0] += p[0];
-    acc[1] += p[1];
-    acc[2] += p[2];
+  const bg = corners.reduce((acc, c) => {
+    acc[0] += c[0];
+    acc[1] += c[1];
+    acc[2] += c[2];
     return acc;
-  }, [0, 0, 0]).map(v => v / samples.length);
+  }, [0, 0, 0]).map(v => v / corners.length);
 
   for (let i = 0; i < data.length; i += 4) {
     const dr = data[i] - bg[0];
@@ -1271,11 +1264,11 @@ function removeUniformBackgroundFromCanvas(canvas, tolerance = 52, softEdge = 26
     const db = data[i + 2] - bg[2];
     const distance = Math.sqrt(dr * dr + dg * dg + db * db);
 
-    if (distance <= tolerance) {
+    if (distance < tolerance) {
       data[i + 3] = 0;
-    } else if (distance <= tolerance + softEdge) {
-      const ratio = (distance - tolerance) / softEdge;
-      data[i + 3] = Math.round(data[i + 3] * ratio);
+    } else if (distance < tolerance + 22) {
+      const alphaRatio = (distance - tolerance) / 22;
+      data[i + 3] = Math.round(data[i + 3] * alphaRatio);
     }
   }
 
@@ -1285,26 +1278,22 @@ function removeUniformBackgroundFromCanvas(canvas, tolerance = 52, softEdge = 26
 async function transformStickerImage(source, options = {}) {
   const maxSize = 96;
   const removeBackground = !!options.removeBackground;
-
   const img = await loadImageFromSource(source);
 
-  const originalWidth = img.naturalWidth || img.width;
-  const originalHeight = img.naturalHeight || img.height;
+  const ratio = Math.min(
+    maxSize / img.naturalWidth,
+    maxSize / img.naturalHeight,
+    1
+  );
 
-  if (!originalWidth || !originalHeight) {
-    throw new Error("Dimensions image invalides.");
-  }
-
-  // Plafond 96×96, proportionnel, sans déformation, sans agrandir les petites images.
-  const ratio = Math.min(maxSize / originalWidth, maxSize / originalHeight, 1);
-  const width = Math.max(1, Math.round(originalWidth * ratio));
-  const height = Math.max(1, Math.round(originalHeight * ratio));
+  const width = Math.max(1, Math.round(img.naturalWidth * ratio));
+  const height = Math.max(1, Math.round(img.naturalHeight * ratio));
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
 
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, width, height);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
@@ -1314,23 +1303,8 @@ async function transformStickerImage(source, options = {}) {
     removeUniformBackgroundFromCanvas(canvas);
   }
 
-  return {
-    dataUrl: canvas.toDataURL("image/png"),
-    width,
-    height,
-    originalWidth,
-    originalHeight
-  };
+  return canvas.toDataURL("image/png");
 }
-
-function isDataUrl(value) {
-  return typeof value === "string" && value.startsWith("data:image/");
-}
-
-function isPublicImageUrl(value) {
-  return typeof value === "string" && /^https?:\/\//i.test(value) && !isDataUrl(value);
-}
-
 
 function sortThemes(themes) {
   return themes.sort((a,b) => {
@@ -1405,48 +1379,19 @@ async function addSticker() {
     .map(tag => tag.trim())
     .filter(Boolean);
   const themeId = document.getElementById("themeSelect").value;
-  const removeBackground = document.getElementById("removeStickerBg")
-    ? document.getElementById("removeStickerBg").checked
-    : false;
+  const removeBackground = document.getElementById("removeStickerBg").checked;
 
   if (!file && !url) return alert("Ajoute un sticker, soit par fichier soit par URL.");
   if (!name) return alert("Donne un nom au sticker.");
   if (!themeId) return alert("Choisis un thème.");
 
-  let displayUrl = "";
-  let width = null;
-  let height = null;
-  let originalWidth = null;
-  let originalHeight = null;
+  let transformedUrl;
 
-  if (file) {
-    // FICHIER LOCAL : on transforme vraiment en 96px max pour la banque.
-    // Mais attention : ce n'est pas une URL publique, donc Loult ne peut pas l'afficher directement.
-    try {
-      const transformed = await transformStickerImage(file, { removeBackground });
-      displayUrl = transformed.dataUrl;
-      width = transformed.width;
-      height = transformed.height;
-      originalWidth = transformed.originalWidth;
-      originalHeight = transformed.originalHeight;
-    } catch (err) {
-      console.error("Transformation fichier impossible :", err);
-      return alert("Impossible de transformer ce fichier.");
-    }
-  } else {
-    // URL PUBLIQUE : pour Loult, on garde la vraie URL.
-    // On tente une version 96px pour l'affichage local seulement.
-    try {
-      const transformed = await transformStickerImage(url, { removeBackground });
-      displayUrl = transformed.dataUrl;
-      width = transformed.width;
-      height = transformed.height;
-      originalWidth = transformed.originalWidth;
-      originalHeight = transformed.originalHeight;
-    } catch (err) {
-      console.warn("Miniature 96px impossible pour cette URL, on garde l'URL originale :", err);
-      displayUrl = url;
-    }
+  try {
+    transformedUrl = await transformStickerImage(file || url, { removeBackground });
+  } catch (err) {
+    console.error(err);
+    return alert("Impossible de transformer ce sticker. Si c'est une URL, le site bloque peut-être la conversion. Essaie de télécharger l'image puis de l'ajouter comme fichier.");
   }
 
   const stickerData = {
@@ -1455,24 +1400,12 @@ async function addSticker() {
     themeId,
     favorite: false,
     tags,
-
-    // displayUrl = image utilisée dans la banque.
-    displayUrl,
-
-    // publicUrl = vraie URL copiée pour Loult.
-    // Si c'est un fichier local, il n'y a pas de publicUrl.
-    publicUrl: url || "",
-
-    type: url ? "url" : "file",
-    url: url || "",
-
-    transformed: !!displayUrl && isDataUrl(displayUrl),
+    type: "url",
+    url: transformedUrl,
+    originalUrl: url || "",
+    transformed: true,
     maxSize: 96,
     proportionalResize: true,
-    width,
-    height,
-    originalWidth,
-    originalHeight,
     backgroundRemoved: removeBackground
   };
 
@@ -1482,17 +1415,7 @@ async function addSticker() {
   document.getElementById("stickerUrl").value = "";
   document.getElementById("stickerName").value = "";
   document.getElementById("stickerTags").value = "";
-  if (document.getElementById("removeStickerBg")) {
-    document.getElementById("removeStickerBg").checked = false;
-  }
-
-  if (file) {
-    alert(`Sticker local transformé : ${originalWidth}×${originalHeight} → ${width}×${height}. Pour le poster sur Loult, il faudra l'héberger.`);
-  } else if (displayUrl !== url && width && height) {
-    alert(`Sticker ajouté. Miniature locale : ${originalWidth}×${originalHeight} → ${width}×${height}. Pour Loult, la vraie URL sera copiée.`);
-  } else {
-    alert("Sticker ajouté. Pour Loult, la vraie URL sera copiée.");
-  }
+  document.getElementById("removeStickerBg").checked = false;
 
   renderAll();
 }
@@ -2213,14 +2136,30 @@ function renderStickers(stickers, container) {
 function getStickerDisplayUrl(sticker) {
   if (!sticker) return "";
 
-  // Nouvelle version : image locale/miniature affichée dans la banque.
-  if (sticker.displayUrl) return sticker.displayUrl;
+  // Stickers ajoutés par URL
+  if (sticker.type === "url" && sticker.url) {
+    return sticker.url;
+  }
 
-  // Anciennes versions
-  if (sticker.dataUrl) return sticker.dataUrl;
-  if (sticker.file instanceof Blob) return URL.createObjectURL(sticker.file);
-  if (typeof sticker.file === "string") return sticker.file;
-  if (sticker.url) return sticker.url;
+  // Anciennes versions ou stickers avec URL sans type
+  if (sticker.url) {
+    return sticker.url;
+  }
+
+  // Stickers ajoutés par fichier local : Blob/File stocké dans IndexedDB
+  if (sticker.file instanceof Blob) {
+    return URL.createObjectURL(sticker.file);
+  }
+
+  // Sécurité pour anciennes versions qui auraient stocké une dataURL
+  if (typeof sticker.file === "string") {
+    return sticker.file;
+  }
+
+  // Sécurité supplémentaire si l'image a été stockée sous un autre nom
+  if (sticker.dataUrl) {
+    return sticker.dataUrl;
+  }
 
   return "";
 }
@@ -2264,19 +2203,13 @@ async function copyStickerUrl(id) {
   const sticker = stickers.find(s => s.id === id);
   if (!sticker) return;
 
-  const loultUrl = sticker.publicUrl || (isPublicImageUrl(sticker.url) ? sticker.url : "");
-
-  if (!loultUrl) {
-    alert(
-      "Ce sticker vient d'un fichier local transformé en 96px.\n\n" +
-      "Loult ne peut pas afficher un data:image/base64.\n" +
-      "Il faut d'abord héberger l'image transformée sur un site d'images, puis ajouter son URL."
-    );
+  if (!sticker.url) {
+    alert("Aucune URL disponible pour ce sticker.");
     return;
   }
 
-  await navigator.clipboard.writeText(loultUrl);
-  alert("URL publique copiée pour Loult !");
+  await navigator.clipboard.writeText(sticker.url);
+  alert(sticker.transformed ? "Sticker 96px copié !" : "URL copiée !");
 }
 
 async function prepareLoultPost(id) {
@@ -2286,16 +2219,11 @@ async function prepareLoultPost(id) {
 
   recordRecentSticker(id);
 
-  const loultUrl = sticker.publicUrl || (isPublicImageUrl(sticker.url) ? sticker.url : "");
-
-  if (loultUrl) {
-    await navigator.clipboard.writeText(loultUrl);
-    alert("URL publique copiée pour Loult !");
+  if (sticker.type === "url") {
+    await navigator.clipboard.writeText(sticker.url);
+    alert("Préparé pour Loult : URL copiée. Plus tard, ce bouton pourra poster directement dans le chat.");
   } else {
-    alert(
-      "Sticker marqué comme utilisé, mais il n'a pas d'URL publique.\n" +
-      "Pour Loult, il faut héberger l'image transformée puis utiliser son lien."
-    );
+    alert("Sticker marqué comme utilisé. Pour poster dans Loult, il faudra une URL publique ou une intégration serveur.");
   }
 
   renderAll();
