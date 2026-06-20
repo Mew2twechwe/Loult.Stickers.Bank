@@ -1495,8 +1495,8 @@ function renderThemes(themes, stickers) {
       };
 
       editPanel.appendChild(iconBtn);
-      
-      
+      editPanel.appendChild(renameBtn);
+      editPanel.appendChild(deleteBtn);
 
       box.onclick = () => openTheme(theme.id);
       box.appendChild(openBtn);
@@ -1831,16 +1831,16 @@ function renderStickers(stickers, container) {
       const primaryActions = document.createElement("div");
       primaryActions.className = "primary-actions";
 
-      const copyBtnMain = document.createElement("button");
-      copyBtnMain.textContent = "Copier URL";
-      copyBtnMain.onclick = () => copyStickerUrl(sticker.id);
-
       const previewBtnMain = document.createElement("button");
       previewBtnMain.textContent = "Aperçu";
       previewBtnMain.onclick = () => openPreview(sticker.id);
 
-      primaryActions.appendChild(copyBtnMain);
+      const copyBtnMain = document.createElement("button");
+      copyBtnMain.textContent = "Copier URL";
+      copyBtnMain.onclick = () => copyStickerUrl(sticker.id);
+
       primaryActions.appendChild(previewBtnMain);
+      primaryActions.appendChild(copyBtnMain);
 
       const editToggle = document.createElement("button");
       editToggle.className = "edit-toggle";
@@ -1853,37 +1853,6 @@ function renderStickers(stickers, container) {
         editPanel.classList.toggle("open");
         editToggle.textContent = editPanel.classList.contains("open") ? "Éditer ▴" : "Éditer ▾";
       };
-
-      const previewBtn = document.createElement("button");
-      previewBtn.textContent = "Aperçu";
-      previewBtn.onclick = () => openPreview(sticker.id);
-
-      const copyBtn = document.createElement("button");
-      copyBtn.textContent = "Copier URL";
-      copyBtn.onclick = () => copyStickerUrl(sticker.id);
-
-      const favBtn = document.createElement("button");
-      favBtn.textContent = sticker.favorite ? "⭐ Favori" : "☆ Favori";
-      favBtn.onclick = () => toggleFavorite(sticker.id);
-
-      const renameBtn = document.createElement("button");
-      renameBtn.textContent = "Renommer";
-      renameBtn.onclick = () => renameSticker(sticker.id);
-
-      const moveBtn = document.createElement("button");
-      moveBtn.textContent = "Déplacer";
-      moveBtn.onclick = () => moveSticker(sticker.id);
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Supprimer";
-      deleteBtn.onclick = () => deleteSticker(sticker.id);
-
-      
-      
-      
-      
-      
-      
 
       const shortcutRow = document.createElement("div");
       shortcutRow.className = "shortcut-select-row";
@@ -1909,7 +1878,22 @@ function renderStickers(stickers, container) {
       shortcutRow.appendChild(addShortcutBtn);
       shortcutRow.appendChild(removeShortcutBtn);
 
+      const favBtn = document.createElement("button");
+      favBtn.textContent = sticker.favorite ? "⭐ Favori" : "☆ Favori";
+      favBtn.onclick = () => toggleFavorite(sticker.id);
+
+      const moveBtn = document.createElement("button");
+      moveBtn.textContent = "Déplacer";
+      moveBtn.onclick = () => moveSticker(sticker.id);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = () => deleteSticker(sticker.id);
+
       editPanel.appendChild(shortcutRow);
+      editPanel.appendChild(favBtn);
+      editPanel.appendChild(moveBtn);
+      editPanel.appendChild(deleteBtn);
 
       card.appendChild(img);
       card.appendChild(title);
@@ -2135,6 +2119,19 @@ document.getElementById("backThemesBtn").onclick = () => {
 };
 document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
 </script>
+
+
+<style>
+.primary-actions{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.primary-actions button{
+  min-width:92px;
+}
+</style>
 
 </body>
 </html>
