@@ -35,7 +35,14 @@ body::before{
   content:"";
   position:fixed;
   inset:0;
-  background-image:url("https://i.imgur.com/T7lI7mq.png");
+  background-image:var(
+    --page-bg-image,
+    url("https://i.imgur.com/T4ZKmDp_d.webp?maxwidth=1920&fidelity=grand"),
+    url("https://i.imgur.com/T4ZKmDp.png"),
+    url("https://i.imgur.com/T4ZKmDp.jpg"),
+    url("https://i.imgur.com/T4ZKmDp.jpeg"),
+    url("https://i.imgur.com/T4ZKmDp.webp")
+  );
   background-size:cover;
   background-repeat:no-repeat;
   background-position:center center;
@@ -1319,6 +1326,32 @@ const RECENT_KEY = "loult_recent_stickers_v1";
 const SHORTCUTS_KEY = "loult_personal_shortcuts_v1";
 let currentShortcutId = null;
 let currentThemeId = null;
+
+const PAGE_BACKGROUND_CANDIDATES = [
+  "https://i.imgur.com/T4ZKmDp_d.webp?maxwidth=1920&fidelity=grand",
+  "https://i.imgur.com/T4ZKmDp.png",
+  "https://i.imgur.com/T4ZKmDp.jpg",
+  "https://i.imgur.com/T4ZKmDp.jpeg",
+  "https://i.imgur.com/T4ZKmDp.webp"
+];
+
+function setPageBackground(url) {
+  document.documentElement.style.setProperty("--page-bg-image", `url("${url.replace(/"/g, "%22")}")`);
+}
+
+function loadPageBackground(index = 0) {
+  if (index >= PAGE_BACKGROUND_CANDIDATES.length) return;
+
+  const img = new Image();
+  const url = PAGE_BACKGROUND_CANDIDATES[index];
+
+  img.onload = () => setPageBackground(url);
+  img.onerror = () => loadPageBackground(index + 1);
+  img.referrerPolicy = "no-referrer";
+  img.src = url;
+}
+
+loadPageBackground();
 
 const request = indexedDB.open("LoultStickersDB", 5);
 
