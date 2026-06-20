@@ -1840,26 +1840,43 @@ function renderStickers(stickers, container) {
       const shortcutRow = document.createElement("div");
       shortcutRow.className = "shortcut-select-row";
 
-      const shortcutSelect = document.createElement("select");
+      const personalShortcuts = getAllShortcuts();
 
-      getAllShortcuts().forEach(shortcut => {
-        const option = document.createElement("option");
-        option.value = shortcut.id;
-        option.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name}`;
-        shortcutSelect.appendChild(option);
-      });
+      if (personalShortcuts.length) {
+        const shortcutSelect = document.createElement("select");
 
-      const addShortcutBtn = document.createElement("button");
-      addShortcutBtn.textContent = "Ajouter au raccourci";
-      addShortcutBtn.onclick = () => addStickerToShortcut(sticker.id, shortcutSelect.value);
+        personalShortcuts.forEach(shortcut => {
+          const option = document.createElement("option");
+          option.value = shortcut.id;
+          option.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name}`;
+          shortcutSelect.appendChild(option);
+        });
 
-      const removeShortcutBtn = document.createElement("button");
-      removeShortcutBtn.textContent = "Retirer";
-      removeShortcutBtn.onclick = () => removeStickerFromShortcut(sticker.id, shortcutSelect.value);
+        const addShortcutBtn = document.createElement("button");
+        addShortcutBtn.textContent = "Ajouter au raccourci";
+        addShortcutBtn.onclick = () => addStickerToShortcut(sticker.id, shortcutSelect.value);
 
-      shortcutRow.appendChild(shortcutSelect);
-      shortcutRow.appendChild(addShortcutBtn);
-      shortcutRow.appendChild(removeShortcutBtn);
+        const removeShortcutBtn = document.createElement("button");
+        removeShortcutBtn.textContent = "Retirer";
+        removeShortcutBtn.onclick = () => removeStickerFromShortcut(sticker.id, shortcutSelect.value);
+
+        shortcutRow.appendChild(shortcutSelect);
+        shortcutRow.appendChild(addShortcutBtn);
+        shortcutRow.appendChild(removeShortcutBtn);
+      } else {
+        const emptyShortcutNote = document.createElement("div");
+        emptyShortcutNote.className = "empty-note";
+        emptyShortcutNote.textContent = "Crée d'abord un raccourci personnel pour y ajouter ce sticker.";
+        shortcutRow.appendChild(emptyShortcutNote);
+      }
+
+      const moveBtn = document.createElement("button");
+      moveBtn.textContent = "Déplacer";
+      moveBtn.onclick = () => moveSticker(sticker.id);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Supprimer";
+      deleteBtn.onclick = () => deleteSticker(sticker.id);
 
       editPanel.appendChild(shortcutRow);
       editPanel.appendChild(moveBtn);
@@ -2093,15 +2110,18 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 
 <style>
 .primary-actions{
-  display:flex;
-  flex-direction:row;
+  display:flex !important;
+  flex-direction:row !important;
   justify-content:center;
   align-items:center;
   gap:8px;
-  flex-wrap:nowrap;
+  flex-wrap:nowrap !important;
 }
 .primary-actions button{
-  min-width:92px;
+  min-width:76px;
+  flex:1 1 0;
+  white-space:nowrap;
+  font-size:12px;
 }
 </style>
 
