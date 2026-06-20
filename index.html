@@ -1644,15 +1644,24 @@ function renderShortcuts(stickers) {
 
       const renameBtn = document.createElement("button");
       renameBtn.textContent = "Renommer";
-      renameBtn.onclick = () => renameShortcut(shortcut.id);
+      renameBtn.onclick = () => {
+        editPanel.classList.remove("open");
+        renameShortcut(shortcut.id);
+      };
 
       const iconBtn = document.createElement("button");
       iconBtn.textContent = "Changer l'icône";
-      iconBtn.onclick = () => changeShortcutIcon(shortcut.id);
+      iconBtn.onclick = () => {
+        editPanel.classList.remove("open");
+        changeShortcutIcon(shortcut.id);
+      };
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Supprimer";
-      deleteBtn.onclick = () => deleteShortcut(shortcut.id);
+      deleteBtn.onclick = () => {
+        editPanel.classList.remove("open");
+        deleteShortcut(shortcut.id);
+      };
 
       editPanel.appendChild(renameBtn);
       editPanel.appendChild(iconBtn);
@@ -1744,37 +1753,40 @@ function renameShortcut(id) {
 }
 
 function changeShortcutIcon(id) {
-  const choice = prompt("Colle une URL d'icône, ou laisse vide pour choisir un fichier :");
+  const mode = confirm("OK = choisir un fichier\nAnnuler = coller une URL");
 
-  if (choice && choice.trim()) {
-    const shortcuts = getUserShortcuts();
-    const shortcut = shortcuts.find(s => s.id === id);
-    if (!shortcut) return;
+  if (mode) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
 
-    shortcut.icon = choice.trim();
-    saveUserShortcuts(shortcuts);
-    getAll("stickers").then(renderShortcuts);
+    input.onchange = async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const shortcuts = getUserShortcuts();
+      const shortcut = shortcuts.find(s => s.id === id);
+      if (!shortcut) return;
+
+      shortcut.icon = await fileToDataURL(file);
+      saveUserShortcuts(shortcuts);
+      await getAll("stickers").then(renderShortcuts);
+    };
+
+    input.click();
     return;
   }
 
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
+  const choice = prompt("Colle l'URL de l'icône :");
+  if (!choice || !choice.trim()) return;
 
-  input.onchange = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const shortcuts = getUserShortcuts();
+  const shortcut = shortcuts.find(s => s.id === id);
+  if (!shortcut) return;
 
-    const shortcuts = getUserShortcuts();
-    const shortcut = shortcuts.find(s => s.id === id);
-    if (!shortcut) return;
-
-    shortcut.icon = await fileToDataURL(file);
-    saveUserShortcuts(shortcuts);
-    getAll("stickers").then(renderShortcuts);
-  };
-
-  input.click();
+  shortcut.icon = choice.trim();
+  saveUserShortcuts(shortcuts);
+  getAll("stickers").then(renderShortcuts);
 }
 
 function deleteShortcut(id) {
@@ -2443,6 +2455,113 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 /* évite que les cartes coupent le menu déroulant raccourci */
 .shortcut-box{
   overflow:visible !important;
+}
+</style>
+
+
+<style>
+/* ===== CORRECTION RACCOURCIS : ICÔNE + MENU ÉDITER ===== */
+
+.shortcut-box{
+  overflow:visible !important;
+  position:relative !important;
+  z-index:1;
+}
+
+.shortcut-box:has(.shortcut-edit-panel.open){
+  z-index:999 !important;
+}
+
+.shortcut-head,
+.shortcut-actions{
+  position:relative !important;
+  z-index:1000 !important;
+}
+
+.shortcut-preview{
+  position:relative !important;
+  z-index:1 !important;
+  margin-top:10px;
+}
+
+.shortcut-title{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  font-size:24px !important;
+}
+
+.shortcut-title-icon{
+  width:42px !important;
+  height:42px !important;
+  flex:0 0 42px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:8px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.20);
+  box-shadow:0 0 10px rgba(190,90,255,.22);
+  overflow:hidden;
+}
+
+.shortcut-title-icon img{
+  width:42px !important;
+  height:42px !important;
+  object-fit:cover !important;
+  border-radius:8px !important;
+  border:none !important;
+}
+
+.shortcut-edit-wrap{
+  position:relative !important;
+  display:inline-block !important;
+  z-index:2000 !important;
+}
+
+.shortcut-edit-panel{
+  display:none;
+  position:absolute !important;
+  top:42px !important;
+  left:0 !important;
+  min-width:170px !important;
+  padding:8px !important;
+  border-radius:10px !important;
+  background:rgba(15,6,22,.98) !important;
+  border:1px solid rgba(220,120,255,.38) !important;
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.70),
+    0 0 18px rgba(190,80,255,.32) !important;
+  z-index:9999 !important;
+}
+
+.shortcut-edit-panel.open{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+}
+
+.shortcut-edit-panel button{
+  width:100% !important;
+  margin:0 !important;
+  text-align:left !important;
+  white-space:nowrap !important;
+}
+
+/* évite que les stickers dans un raccourci couvrent les menus */
+.shortcut-preview .card{
+  position:relative !important;
+  z-index:1 !important;
+}
+
+/* icône en haut de page raccourci */
+#shortcutPageTitle img{
+  width:52px !important;
+  height:52px !important;
+  object-fit:cover !important;
+  border-radius:10px !important;
+  vertical-align:middle !important;
+  margin-right:10px !important;
 }
 </style>
 
