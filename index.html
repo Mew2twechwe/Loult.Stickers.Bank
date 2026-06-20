@@ -30,7 +30,7 @@ body::before{
 }
 h1{text-align:center}
 .section{
-  background:rgba(20,20,20,.97);
+  background:rgba(20,20,20,.72);
   border:1px solid rgba(255,255,255,.10);
   border-radius:12px;
   padding:18px;
@@ -1003,8 +1003,7 @@ button:hover{background:#555}
 <div id="homePage">
 
   <div class="section forge-panel">
-    <span class="forge-flame">🔥</span>
-    <span class="forge-symbol">⚒</span>
+        <span class="forge-symbol">⚒</span>
     <h2>Créer un thème</h2>
     <div class="forge-create-row">
 
@@ -1086,7 +1085,7 @@ button:hover{background:#555}
 
   <div class="section astral-shortcuts-panel">
     <div class="shortcut-toolbar">
-      <h2 style="margin-right:auto;">Raccourcis personnels ⌨️</h2>
+      <h2 style="margin-right:auto;">Raccourcis personnels</h2>
       <input id="shortcutNameInput" placeholder="Nom du nouveau raccourci">
       <button id="createShortcutBtn">Créer un raccourci</button>
     </div>
@@ -2070,7 +2069,7 @@ async function moveSticker(id) {
 async function deleteSticker(id) {
   if (!confirm("Supprimer ce sticker ?")) return;
   await del("stickers", id);
-  renderAll();
+  await renderAll();
 }
 
 document.getElementById("addThemeBtn").onclick = addTheme;
@@ -2100,3 +2099,18 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 
 </body>
 </html>
+<style>
+.forge-symbol{
+font-size:220px !important;
+opacity:.14 !important;
+right:10px !important;
+top:-20px !important;
+}
+.stats-astral .stars-soft::before,
+.stats-astral .stars-soft::after{
+opacity:1 !important;
+}
+.shortcut-title{
+font-size:22px !important;
+}
+</style>
