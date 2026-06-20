@@ -1085,13 +1085,23 @@ button:hover{background:#555}
 
   <div class="section astral-shortcuts-panel">
     <div class="shortcut-toolbar">
-      <h2 style="margin-right:auto;">Raccourcis personnels</h2>
-      <input id="shortcutNameInput" placeholder="Nom du nouveau raccourci">
-      <button id="createShortcutBtn">Créer un raccourci</button>
+      <h2>Raccourcis personnels</h2>
     </div>
 
     <div class="recent-note">
       Crée tes propres raccourcis personnels. Les prochains pourront être reliés à ALT+1, ALT+2, ALT+3...
+    </div>
+
+    <div class="shortcut-create-box">
+      <input id="shortcutNameInput" placeholder="Nom du nouveau raccourci">
+
+      <div class="shortcut-icon-choice">
+        <input id="shortcutIconFile" type="file" accept="image/*">
+        <span class="shortcut-or">OU</span>
+        <input id="shortcutIconUrl" placeholder="URL icône">
+      </div>
+
+      <button id="createShortcutBtn">Créer un raccourci</button>
     </div>
 
     <div id="shortcutsGrid" class="shortcuts-grid"></div>
@@ -1583,7 +1593,24 @@ function renderShortcuts(stickers) {
 
     const title = document.createElement("h3");
     title.className = "shortcut-title";
-    title.textContent = `${shortcut.icon || "⌨️"} ${shortcut.name} (${shortcutStickers.length})`;
+
+    const icon = document.createElement("span");
+    icon.className = "shortcut-title-icon";
+
+    if (shortcut.icon && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))) {
+      const img = document.createElement("img");
+      img.src = shortcut.icon;
+      img.alt = "";
+      icon.appendChild(img);
+    } else {
+      icon.textContent = shortcut.icon || "▣";
+    }
+
+    const titleText = document.createElement("span");
+    titleText.textContent = `${shortcut.name} (${shortcutStickers.length})`;
+
+    title.appendChild(icon);
+    title.appendChild(titleText);
 
     const key = document.createElement("span");
     key.className = "shortcut-key";
@@ -1602,16 +1629,38 @@ function renderShortcuts(stickers) {
     actions.appendChild(openBtn);
 
     if (!shortcut.locked) {
+      const editWrap = document.createElement("div");
+      editWrap.className = "shortcut-edit-wrap";
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Éditer ▾";
+      editBtn.onclick = () => {
+        editPanel.classList.toggle("open");
+        editBtn.textContent = editPanel.classList.contains("open") ? "Éditer ▴" : "Éditer ▾";
+      };
+
+      const editPanel = document.createElement("div");
+      editPanel.className = "shortcut-edit-panel";
+
       const renameBtn = document.createElement("button");
       renameBtn.textContent = "Renommer";
       renameBtn.onclick = () => renameShortcut(shortcut.id);
+
+      const iconBtn = document.createElement("button");
+      iconBtn.textContent = "Changer l'icône";
+      iconBtn.onclick = () => changeShortcutIcon(shortcut.id);
 
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = "Supprimer";
       deleteBtn.onclick = () => deleteShortcut(shortcut.id);
 
-      actions.appendChild(renameBtn);
-      actions.appendChild(deleteBtn);
+      editPanel.appendChild(renameBtn);
+      editPanel.appendChild(iconBtn);
+      editPanel.appendChild(deleteBtn);
+
+      editWrap.appendChild(editBtn);
+      editWrap.appendChild(editPanel);
+      actions.appendChild(editWrap);
     }
 
     const preview = document.createElement("div");
@@ -1640,9 +1689,13 @@ function renderShortcuts(stickers) {
   }
 }
 
-function createShortcut() {
+async function createShortcut() {
   const input = document.getElementById("shortcutNameInput");
+  const iconFileInput = document.getElementById("shortcutIconFile");
+  const iconUrlInput = document.getElementById("shortcutIconUrl");
+
   const name = input.value.trim();
+  const iconUrl = iconUrlInput.value.trim();
 
   if (!name) return alert("Écris un nom de raccourci.");
 
@@ -1652,16 +1705,26 @@ function createShortcut() {
     return alert("Ce raccourci existe déjà.");
   }
 
+  let icon = "▣";
+
+  if (iconFileInput.files[0]) {
+    icon = await fileToDataURL(iconFileInput.files[0]);
+  } else if (iconUrl) {
+    icon = iconUrl;
+  }
+
   shortcuts.push({
     id: crypto.randomUUID(),
     name,
-    icon: "⌨️",
+    icon,
     type: "custom",
     stickerIds: []
   });
 
   saveUserShortcuts(shortcuts);
   input.value = "";
+  iconFileInput.value = "";
+  iconUrlInput.value = "";
 
   getAll("stickers").then(renderShortcuts);
 }
@@ -1678,6 +1741,40 @@ function renameShortcut(id) {
   saveUserShortcuts(shortcuts);
 
   getAll("stickers").then(renderShortcuts);
+}
+
+function changeShortcutIcon(id) {
+  const choice = prompt("Colle une URL d'icône, ou laisse vide pour choisir un fichier :");
+
+  if (choice && choice.trim()) {
+    const shortcuts = getUserShortcuts();
+    const shortcut = shortcuts.find(s => s.id === id);
+    if (!shortcut) return;
+
+    shortcut.icon = choice.trim();
+    saveUserShortcuts(shortcuts);
+    getAll("stickers").then(renderShortcuts);
+    return;
+  }
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const shortcuts = getUserShortcuts();
+    const shortcut = shortcuts.find(s => s.id === id);
+    if (!shortcut) return;
+
+    shortcut.icon = await fileToDataURL(file);
+    saveUserShortcuts(shortcuts);
+    getAll("stickers").then(renderShortcuts);
+  };
+
+  input.click();
 }
 
 function deleteShortcut(id) {
@@ -1715,8 +1812,10 @@ function renderShortcutPage(stickers) {
   const shortcut = getAllShortcuts().find(s => s.id === currentShortcutId);
   if (!shortcut) return;
 
-  document.getElementById("shortcutPageTitle").textContent =
-    `${shortcut.icon || "⌨️"} ${shortcut.name}`;
+  document.getElementById("shortcutPageTitle").innerHTML =
+    `${shortcut.icon && (shortcut.icon.startsWith("data:") || shortcut.icon.startsWith("http"))
+      ? `<img src="${shortcut.icon}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;">`
+      : `<span style="margin-right:8px;">${shortcut.icon || "▣"}</span>`}${shortcut.name}`;
 
   renderStickers(
     getShortcutStickers(shortcut, stickers),
@@ -2240,6 +2339,110 @@ document.getElementById("searchInput").addEventListener("keyup", () => renderAll
 
 .shortcut-select-row button{
   margin:4px !important;
+}
+</style>
+
+
+<style>
+/* création raccourci mieux placée */
+.shortcut-toolbar{
+  margin-bottom:4px !important;
+}
+.shortcut-toolbar h2{
+  margin:0 0 6px 0 !important;
+}
+.shortcut-create-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:14px 0 18px 0;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(0,0,0,.20);
+  border:1px solid rgba(255,255,255,.08);
+  width:max-content;
+  max-width:100%;
+}
+.shortcut-create-box input{
+  margin:0 !important;
+}
+.shortcut-icon-choice{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.shortcut-icon-choice input[type="file"]{
+  max-width:210px;
+}
+.shortcut-icon-choice input:not([type="file"]){
+  width:170px;
+}
+.shortcut-or{
+  color:#ff8bff;
+  font-weight:bold;
+  font-size:12px;
+  text-shadow:0 0 8px rgba(255,90,230,.8);
+}
+
+/* titre raccourci avec icône */
+.shortcut-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.shortcut-title-icon{
+  width:26px;
+  height:26px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 26px;
+}
+.shortcut-title-icon img{
+  width:26px;
+  height:26px;
+  object-fit:cover;
+  border-radius:5px;
+  border:1px solid rgba(255,255,255,.25);
+}
+
+/* menu éditer raccourci à côté de ouvrir */
+.shortcut-actions{
+  align-items:flex-start;
+}
+.shortcut-edit-wrap{
+  position:relative;
+  display:inline-block;
+}
+.shortcut-edit-panel{
+  display:none;
+  position:absolute;
+  top:42px;
+  left:0;
+  min-width:150px;
+  padding:8px;
+  border-radius:10px;
+  background:rgba(12,6,18,.98);
+  border:1px solid rgba(210,120,255,.28);
+  box-shadow:0 8px 22px rgba(0,0,0,.45), 0 0 14px rgba(180,80,255,.18);
+  z-index:20;
+}
+.shortcut-edit-panel.open{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.shortcut-edit-panel button{
+  margin:0 !important;
+  width:100%;
+  text-align:left;
+}
+
+/* évite que les cartes coupent le menu déroulant raccourci */
+.shortcut-box{
+  overflow:visible !important;
 }
 </style>
 
