@@ -635,6 +635,14 @@ button:hover{background:#555}
   animation:panelStarsPulse 5s ease-in-out infinite alternate;
 }
 
+.astral-search-panel{
+  background:
+    radial-gradient(circle at 12% 30%, rgba(120,86,255,.22), transparent 30%),
+    radial-gradient(circle at 84% 34%, rgba(255,76,190,.18), transparent 32%),
+    linear-gradient(135deg,rgba(18,15,58,.88),rgba(45,18,82,.84) 55%,rgba(8,38,64,.86));
+  border-color:rgba(185,135,255,.36);
+}
+
 .astral-search-panel h2{text-shadow:0 0 8px rgba(190,140,255,.75),0 0 22px rgba(130,70,255,.45)}
 .astral-search-panel input{border-color:rgba(180,120,255,.30);box-shadow:inset 0 1px 7px rgba(0,0,0,.55)}
 
@@ -790,36 +798,65 @@ button:hover{background:#555}
 
 #searchBtn{
   border-radius:10px;
-  border:1px solid rgba(120,235,255,.55);
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,80,210,.36), transparent 35%),
-    linear-gradient(135deg,rgba(34,25,94,.98),rgba(83,32,132,.94),rgba(10,78,105,.94));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 13px rgba(82,230,255,.24),0 8px 16px rgba(30,12,70,.24);
+  border:1px solid rgba(210,120,255,.46);
+  background:linear-gradient(135deg,rgba(45,25,82,.94),rgba(84,32,108,.88));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 6px 13px rgba(44,14,84,.18),0 0 12px rgba(176,80,255,.16);
   text-shadow:0 0 8px rgba(255,255,255,.42);
 }
 
 #searchBtn:hover{
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,110,225,.42), transparent 35%),
-    linear-gradient(135deg,rgba(48,34,120,.98),rgba(105,38,150,.96),rgba(12,92,122,.96));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 17px rgba(82,230,255,.35),0 9px 18px rgba(30,12,70,.28);
+  background:linear-gradient(135deg,rgba(58,30,100,.98),rgba(104,40,132,.96));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 16px rgba(44,14,84,.24),0 0 15px rgba(190,90,255,.22);
 }
 
 #goThemesBtn{
-  min-width:220px;
-  border-radius:10px;
-  border:1px solid rgba(205,155,255,.55);
+  position:relative;
+  overflow:hidden;
+  min-width:245px;
+  border-radius:14px;
+  border:2px solid rgba(255,231,130,.82);
   background:
-    radial-gradient(circle at 20% 18%, rgba(255,90,205,.30), transparent 36%),
-    linear-gradient(135deg,rgba(42,30,98,.96),rgba(92,34,122,.92) 58%,rgba(17,72,104,.92));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 18px rgba(70,25,120,.26);
-  text-shadow:0 0 8px rgba(255,255,255,.38);
+    linear-gradient(90deg,rgba(255,221,96,.18),transparent 18%,transparent 82%,rgba(255,221,96,.18)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.24), transparent 28%),
+    linear-gradient(135deg,rgba(15,16,35,.98),rgba(59,29,112,.96) 44%,rgba(13,78,100,.96));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.16),
+    0 0 0 2px rgba(98,238,255,.20),
+    0 0 18px rgba(255,216,80,.32),
+    0 0 30px rgba(92,225,255,.22),
+    0 10px 22px rgba(10,8,35,.34);
+  text-shadow:0 0 7px rgba(255,255,255,.72),0 0 16px rgba(110,240,255,.60);
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+
+#goThemesBtn::before{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:10px;
+  border:1px solid rgba(120,238,255,.36);
+  pointer-events:none;
 }
 
 #goThemesBtn:hover{
   background:
-    radial-gradient(circle at 22% 18%, rgba(255,115,220,.38), transparent 36%),
-    linear-gradient(135deg,rgba(56,38,125,.98),rgba(118,42,145,.96) 58%,rgba(20,86,122,.96));
+    linear-gradient(90deg,rgba(255,231,115,.24),transparent 18%,transparent 82%,rgba(255,231,115,.24)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.32), transparent 28%),
+    linear-gradient(135deg,rgba(22,22,48,.98),rgba(75,35,135,.98) 44%,rgba(15,94,120,.98));
+}
+
+.search-results-panel{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,170,120,.22);
+}
+
+.search-results-panel h3{
+  margin:0 0 10px;
+  color:#fff;
+  font-size:18px;
+  text-shadow:0 0 8px rgba(255,130,100,.40);
 }
 
 @keyframes panelStarsPulse{
@@ -1152,18 +1189,21 @@ button:hover{background:#555}
 }
 
 .card{
-  width:160px;
+  width:170px;
   max-width:100%;
   padding:9px;
   text-align:center;
-  border:1px solid rgba(170,130,255,.30);
+  border:1px solid rgba(229,196,255,.62);
   border-radius:10px;
   background:
-    radial-gradient(circle at 20% 18%, rgba(125,80,255,.14), transparent 34%),
-    radial-gradient(circle at 80% 82%, rgba(255,80,160,.10), transparent 34%),
-    linear-gradient(135deg,rgba(26,24,46,.92),rgba(24,16,34,.90));
+    radial-gradient(circle at 18% 18%, rgba(134,95,255,.23), transparent 34%),
+    radial-gradient(circle at 82% 82%, rgba(255,118,210,.18), transparent 34%),
+    linear-gradient(135deg,rgba(31,25,58,.95),rgba(29,17,45,.94));
   backdrop-filter:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 7px 15px rgba(18,8,40,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 0 0 1px rgba(255,210,110,.14),
+    0 10px 20px rgba(18,8,40,.24);
 }
 
 .card img{
@@ -1181,6 +1221,13 @@ button:hover{background:#555}
   flex-wrap:nowrap;
   width:100%;
   margin:6px auto 0 auto;
+}
+
+.primary-actions.single button{
+  width:112px;
+  border-color:rgba(255,218,112,.70);
+  background:linear-gradient(135deg,rgba(78,45,126,.96),rgba(116,45,118,.92));
+  box-shadow:0 0 10px rgba(196,94,255,.20), inset 0 1px 0 rgba(255,255,255,.16);
 }
 
 .primary-actions button{
@@ -1239,6 +1286,25 @@ button:hover{background:#555}
 .tag-tape::before{left:-3px;clip-path:polygon(0 0,100% 18%,100% 82%,0 100%)}
 .tag-tape::after{right:-3px;clip-path:polygon(0 18%,100% 0,100% 100%,0 82%)}
 
+.add-tag-tape{
+  position:relative;
+  display:inline-block;
+  padding:4px 9px;
+  margin:0;
+  font-size:11px;
+  color:#fff;
+  border-radius:3px;
+  background:linear-gradient(135deg,rgba(62,34,96,.96),rgba(104,42,128,.92));
+  border:1px solid rgba(225,190,255,.58);
+  box-shadow:0 0 8px rgba(190,80,255,.22), inset 0 1px 0 rgba(255,255,255,.14);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add-tag-tape:hover{
+  background:linear-gradient(135deg,rgba(80,42,120,.98),rgba(126,50,150,.96));
+}
+
 .edit-toggle{
   margin-top:8px;
   width:90%;
@@ -1255,8 +1321,9 @@ button:hover{background:#555}
   margin-top:9px;
   padding:8px;
   border-radius:10px;
-  background:rgba(0,0,0,.28);
-  border:1px solid rgba(255,255,255,.08);
+  background:rgba(11,5,24,.56);
+  border:1px solid rgba(229,196,255,.32);
+  box-shadow:inset 0 0 12px rgba(168,82,255,.12);
 }
 
 .edit-panel.open{display:block}
@@ -1269,24 +1336,38 @@ button:hover{background:#555}
 
 .edit-top-actions{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:4px;
+  grid-template-columns:1.25fr 1fr 1fr;
+  gap:3px;
   width:100%;
   margin-bottom:8px;
 }
 
-.edit-top-actions button{
+.edit-top-actions button,
+.shortcut-select-row button{
   width:100%;
   min-width:0;
   margin:0;
-  padding:7px 4px;
-  font-size:11px;
+  padding:7px 2px;
+  font-size:10px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border-color:rgba(220,190,255,.56);
+  background:linear-gradient(135deg,rgba(38,31,60,.96),rgba(62,33,82,.94));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
 }
 
 .shortcut-select-row{
   border-top:none;
   padding-top:0;
   margin-top:0;
+}
+
+.shortcut-action-title{
+  margin:2px 0 6px;
+  color:#f0ddff;
+  font-size:12px;
+  font-weight:bold;
+  line-height:1.2;
 }
 
 .shortcut-select-row select{
@@ -1298,8 +1379,17 @@ button:hover{background:#555}
   padding:7px;
 }
 
-.shortcut-select-row select option{color:#111}
-.shortcut-select-row button{margin:4px;font-size:12px;padding:7px 9px}
+.shortcut-select-row select option{color:#fff}
+.shortcut-action-buttons{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;
+  margin-top:5px;
+}
+.shortcut-select-row button{
+  font-size:12px;
+  padding:7px 5px;
+}
 
 .empty-note{
   color:#aaa;
@@ -1524,11 +1614,16 @@ button:hover{background:#555}
     <h2>Recherche</h2>
 
     <div class="search-row">
-      <input class="search" id="searchInput" placeholder="Rechercher un sticker...">
-      <button id="searchBtn">Appliquer</button>
+      <input class="search" id="searchInput" placeholder="Nom, tag, thème ou raccourci...">
+      <button id="searchBtn">Trouver</button>
       <button id="goThemesBtn" class="big-btn">Voir tous les thèmes</button>
 
       <div id="quickThemes" class="quick-themes"></div>
+    </div>
+
+    <div id="searchResultsPanel" class="search-results-panel hidden">
+      <h3 id="searchResultsTitle">Résultats</h3>
+      <div id="searchResultsGallery" class="gallery"></div>
     </div>
   </div>
 
@@ -1619,6 +1714,8 @@ let quickThemesAnimationId = null;
 let quickThemesCleanup = null;
 let centerMessageTimer = null;
 let centerDialogCancel = null;
+let cachedThemes = [];
+let cachedStickers = [];
 const STICKER_MIN_SIZE = 64;
 const STICKER_MAX_SIZE = 96;
 
@@ -2092,12 +2189,15 @@ async function addSticker() {
 async function renderAll() {
   const themes = await getAll("themes");
   const stickers = await getAll("stickers");
+  cachedThemes = themes;
+  cachedStickers = stickers;
 
   renderStats(themes, stickers);
   renderThemeSelect(themes);
   renderQuickThemes(themes);
   renderThemes(themes, stickers);
   renderShortcuts(stickers);
+  renderSearchResults(themes, stickers);
 
   if (currentThemeId) {
     const currentTheme = themes.find(t => t.id === currentThemeId);
@@ -2115,6 +2215,75 @@ async function renderAll() {
       document.getElementById("stickersView").classList.add("hidden");
     }
   }
+}
+
+
+function normalizeSearchText(value) {
+  return (value || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function getSearchTerms() {
+  const input = document.getElementById("searchInput");
+  return normalizeSearchText(input ? input.value : "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(term => term.replace(/^#/, ""));
+}
+
+function getStickerShortcutNames(sticker) {
+  return getAllShortcuts()
+    .filter(shortcut => (shortcut.stickerIds || []).includes(sticker.id))
+    .map(shortcut => shortcut.name);
+}
+
+function getStickerSearchText(sticker, themes = cachedThemes) {
+  const theme = themes.find(t => t.id === sticker.themeId);
+  return normalizeSearchText([
+    sticker.name,
+    ...(sticker.tags || []),
+    theme ? theme.name : "",
+    ...getStickerShortcutNames(sticker)
+  ].join(" "));
+}
+
+function stickerMatchesSearch(sticker, themes = cachedThemes) {
+  const terms = getSearchTerms();
+  if (!terms.length) return true;
+  const searchText = getStickerSearchText(sticker, themes);
+  return terms.every(term => searchText.includes(term));
+}
+
+function renderSearchResults(themes, stickers) {
+  const panel = document.getElementById("searchResultsPanel");
+  const gallery = document.getElementById("searchResultsGallery");
+  const title = document.getElementById("searchResultsTitle");
+  const input = document.getElementById("searchInput");
+  if (!panel || !gallery || !title || !input) return;
+
+  const query = input.value.trim();
+  if (!query) {
+    panel.classList.add("hidden");
+    gallery.innerHTML = "";
+    return;
+  }
+
+  const results = stickers.filter(sticker => stickerMatchesSearch(sticker, themes));
+  panel.classList.remove("hidden");
+  title.textContent = results.length
+    ? `${results.length} résultat(s) pour "${query}"`
+    : `Aucun résultat pour "${query}"`;
+
+  if (!results.length) {
+    gallery.innerHTML = '<div class="empty-note">Essaie un autre nom, un tag sans #, un thème ou un raccourci.</div>';
+    return;
+  }
+
+  renderStickers(results, gallery, { useSearch: false });
 }
 
 
@@ -2585,10 +2754,10 @@ function renderShortcuts(stickers) {
       empty.className = "empty-note";
       empty.textContent = shortcut.locked
         ? "Aucun sticker pour le moment."
-        : "Ajoute des stickers depuis Éditer > Ajouter au raccourci.";
+        : "Ajoute des stickers depuis Éditer > add.";
       preview.appendChild(empty);
     } else {
-      renderStickers(shortcutStickers.slice(0, 4), preview);
+      renderStickers(shortcutStickers.slice(0, 4), preview, { useSearch: false });
     }
 
     box.appendChild(head);
@@ -2828,17 +2997,14 @@ async function removeStickerFromShortcut(stickerId, shortcutId) {
 }
 
 
-function renderStickers(stickers, container) {
+function renderStickers(stickers, container, options = {}) {
   container.innerHTML = "";
 
-  const search = document.getElementById("searchInput").value.toLowerCase();
+  const useSearch = options.useSearch !== false;
   let renderedCount = 0;
 
   stickers
-    .filter(s => {
-      const tagsText = (s.tags || []).join(" ").toLowerCase();
-      return s.name.toLowerCase().includes(search) || tagsText.includes(search);
-    })
+    .filter(s => !useSearch || stickerMatchesSearch(s, cachedThemes))
     .sort((a,b) => a.name.localeCompare(b.name, "fr"))
     .forEach(sticker => {
       let url;
@@ -2878,18 +3044,19 @@ function renderStickers(stickers, container) {
         });
       }
 
-      const primaryActions = document.createElement("div");
-      primaryActions.className = "primary-actions";
+      const addTagBtn = document.createElement("button");
+      addTagBtn.className = "add-tag-tape";
+      addTagBtn.textContent = "+ tag";
+      addTagBtn.onclick = () => addTagToSticker(sticker.id);
+      tags.appendChild(addTagBtn);
 
-      const previewBtnMain = document.createElement("button");
-      previewBtnMain.textContent = "Aperçu";
-      previewBtnMain.onclick = () => openPreview(sticker.id);
+      const primaryActions = document.createElement("div");
+      primaryActions.className = "primary-actions single";
 
       const copyBtnMain = document.createElement("button");
-      copyBtnMain.textContent = "Copier URL";
+      copyBtnMain.textContent = "Copier l'URL";
       copyBtnMain.onclick = () => copyStickerUrl(sticker.id);
 
-      primaryActions.appendChild(previewBtnMain);
       primaryActions.appendChild(copyBtnMain);
 
       const editToggle = document.createElement("button");
@@ -2910,6 +3077,10 @@ function renderStickers(stickers, container) {
       const personalShortcuts = getAllShortcuts();
 
       if (personalShortcuts.length) {
+        const shortcutLabel = document.createElement("div");
+        shortcutLabel.className = "shortcut-action-title";
+        shortcutLabel.textContent = "Ajouter / retirer au raccourci";
+
         const shortcutSelect = document.createElement("select");
 
         personalShortcuts.forEach(shortcut => {
@@ -2920,16 +3091,21 @@ function renderStickers(stickers, container) {
         });
 
         const addShortcutBtn = document.createElement("button");
-        addShortcutBtn.textContent = "Ajouter au raccourci";
+        addShortcutBtn.textContent = "add";
         addShortcutBtn.onclick = () => addStickerToShortcut(sticker.id, shortcutSelect.value);
 
         const removeShortcutBtn = document.createElement("button");
-        removeShortcutBtn.textContent = "Retirer";
+        removeShortcutBtn.textContent = "remove";
         removeShortcutBtn.onclick = () => removeStickerFromShortcut(sticker.id, shortcutSelect.value);
 
+        const shortcutButtons = document.createElement("div");
+        shortcutButtons.className = "shortcut-action-buttons";
+        shortcutButtons.appendChild(addShortcutBtn);
+        shortcutButtons.appendChild(removeShortcutBtn);
+
+        shortcutRow.appendChild(shortcutLabel);
         shortcutRow.appendChild(shortcutSelect);
-        shortcutRow.appendChild(addShortcutBtn);
-        shortcutRow.appendChild(removeShortcutBtn);
+        shortcutRow.appendChild(shortcutButtons);
       } else {
         const emptyShortcutNote = document.createElement("div");
         emptyShortcutNote.className = "empty-note";
@@ -2937,16 +3113,21 @@ function renderStickers(stickers, container) {
         shortcutRow.appendChild(emptyShortcutNote);
       }
 
+      const renameBtn = document.createElement("button");
+      renameBtn.textContent = "rename";
+      renameBtn.onclick = () => renameSticker(sticker.id);
+
       const moveBtn = document.createElement("button");
-      moveBtn.textContent = "Déplacer";
+      moveBtn.textContent = "move";
       moveBtn.onclick = () => moveSticker(sticker.id);
 
       const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "Supprimer";
+      deleteBtn.textContent = "trash";
       deleteBtn.onclick = () => deleteSticker(sticker.id);
 
       const editTopActions = document.createElement("div");
       editTopActions.className = "edit-top-actions";
+      editTopActions.appendChild(renameBtn);
       editTopActions.appendChild(moveBtn);
       editTopActions.appendChild(deleteBtn);
 
@@ -3143,6 +3324,54 @@ async function deleteTheme(id) {
   showCenterMessage("Thème supprimé", "Le thème et ses stickers ont été supprimés.");
 }
 
+async function renameSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  const newName = await showCenterDialog({
+    title: "Rename sticker",
+    text: "Choisis le nouveau nom de ce sticker.",
+    inputValue: sticker.name,
+    placeholder: "Nom du sticker",
+    confirmText: "rename"
+  });
+  if (newName === null || !newName.trim()) return;
+
+  const cleanName = newName.trim();
+  sticker.name = cleanName;
+  await put("stickers", sticker);
+  await renderAll();
+  showCenterMessage("Sticker renommé", `Le sticker s'appelle maintenant « ${cleanName} ».`);
+}
+
+async function addTagToSticker(id) {
+  const stickers = await getAll("stickers");
+  const sticker = stickers.find(s => s.id === id);
+  if (!sticker) return;
+
+  const newTag = await showCenterDialog({
+    title: "Ajouter un tag",
+    text: `Ajoute un tag à « ${sticker.name} ».`,
+    placeholder: "Exemple : Astral",
+    confirmText: "+ tag"
+  });
+  if (newTag === null || !newTag.trim()) return;
+
+  const cleanTag = newTag.trim().replace(/^#+/, "");
+  if (!cleanTag) return;
+
+  const tags = sticker.tags || [];
+  if (tags.some(tag => tag.toLowerCase() === cleanTag.toLowerCase())) {
+    return showCenterMessage("Tag déjà présent", `« ${cleanTag} » est déjà sur ce sticker.`);
+  }
+
+  sticker.tags = [...tags, cleanTag];
+  await put("stickers", sticker);
+  await renderAll();
+  showCenterMessage("Tag ajouté", `Le tag #${cleanTag} a été ajouté.`);
+}
+
 async function moveSticker(id) {
   const stickers = await getAll("stickers");
   const sticker = stickers.find(s => s.id === id);
@@ -3218,7 +3447,7 @@ document.getElementById("backThemesBtn").onclick = () => {
   currentThemeId = null;
   document.getElementById("stickersView").classList.add("hidden");
 };
-document.getElementById("searchInput").addEventListener("keyup", () => renderAll());
+document.getElementById("searchInput").addEventListener("input", () => renderAll());
 </script>
 
 
